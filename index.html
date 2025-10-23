@@ -12,10 +12,11 @@
             theme: {
                 extend: {
                     colors: {
-                        'pecsb-blue': '#1e40af', // Blue-700 for trust
-                        'pecsb-green': '#059669', // Emerald-600 for education
-                        'pecsb-light': '#f9fafb', // Gray-50 for clarity
+                        'pecsb-blue': '#1e40af', // Blue-700 (Trust)
+                        'pecsb-green': '#059669', // Emerald-600 (Education)
+                        'pecsb-light': '#f9fafb', // Gray-50 (Clarity)
                         'pecsb-dark': '#1f2937', // Gray-800
+                        'pecsb-accent': '#f59e0b', // Amber-500 (Ratings)
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -28,7 +29,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         
-        /* Basic font and background */
         body {
             font-family: 'Inter', sans-serif;
             color: #1f2937;
@@ -55,8 +55,12 @@
         html[data-lang='ar'] {
             direction: rtl;
         }
-        html[data-lang='ar'] .text-left { text-align: right; }
-        html[data-lang='ar'] .text-right { text-align: left; }
+        /* Override Tailwind LTR-specific classes for RTL mode */
+        html[data-lang='ar'] .text-left { text-align: right !important; }
+        html[data-lang='ar'] .text-right { text-align: left !important; }
+        html[data-lang='ar'] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
+        html[data-lang='ar'] .ml-auto { margin-left: 0 !important; margin-right: auto !important; }
+        html[data-lang='ar'] .border-l-4 { border-left: none; border-right: 4px solid; }
         
         /* Star rating style */
         .star-rating {
@@ -76,46 +80,89 @@
         const translations = {
             en: {
                 // Nav
-                logo: "PECSB", nav_home: "Home", nav_find_teacher: "Find a Teacher", nav_courses: "Courses", nav_test: "Placement Test", nav_login: "Login / Register",
+                logo: "PECSB", nav_home: "Home", nav_find_teacher: "Find a Teacher", nav_courses: "Courses", nav_test: "Placement Test", nav_login: "Login / Register", nav_contact: "Contact",
                 // Hero
-                hero_tagline: "Learn English Anytime, Anywhere in Algeria.", hero_button: "Take Free Placement Test",
+                hero_title: "Welcome to PECSB English Algeria", hero_tagline: "Learn English Anytime, Anywhere in Algeria 🇩🇿", hero_subtext: "Trusted lessons with certified Algerian teachers — safe payments, recorded classes, and real results.", hero_test_button: "Take Free Placement Test", hero_find_teacher: "Find Your Teacher",
                 // Features
-                feat_title: "Why Choose PECSB?", feat_safe_payments: "Safe Payments", feat_certified_teachers: "Certified Teachers", feat_recorded_lessons: "Recorded Lessons", feat_progress_tracking: "Student Progress Tracking",
-                // Teachers
-                teacher_title: "Meet Our Top Certified Teachers", teacher_rating: "Rating", teacher_trial: "Book Trial Class",
-                // Courses
-                course_title: "Our Course Packages", course_duration: "Duration:", course_price: "Price:", course_gep_name: "General English Program (GEP)", course_aep_name: "Academic English Program (AEP)", course_training_name: "Professional Training", course_get_name: "Global Exam Training (GET)",
+                feat_title: "Why Choose PECSB?", feat_safe_payments: "Safe Payments", feat_safe_payments_desc: "All transactions handled securely by PECSB.", feat_certified_teachers: "Certified Teachers", feat_certified_teachers_desc: "Approved after rigorous training and interview.", feat_recorded_lessons: "Recorded Classes", feat_recorded_lessons_desc: "Learn safely, review lessons anytime.", feat_flexible_learning: "Flexible Learning", feat_flexible_learning_desc: "Online, at centers, or hybrid options.", feat_certificate: "Certificate Provided", feat_certificate_desc: "Receive international recognition after completion.",
+                // Programs Overview
+                prog_title: "Programs Overview", prog_gep_name: "GEP", prog_gep_desc: "Build your confidence in daily communication.", prog_aep_name: "AEP", prog_aep_desc: "Improve academic and university English.", prog_training_name: "Training", prog_training_desc: "English for business and professionals.", prog_get_name: "GET", prog_get_desc: "Interactive English for teenagers (ages 13–18).", prog_learn_more: "Learn More",
                 // Testimonials
-                test_title: "What Our Students Say",
+                test_title: "What Our Students Say", test_amina_quote: "Before joining PECSB, I could not speak confidently. Now I’m preparing for university abroad.", test_amina_name: "Amina, Oran", test_sofiane_quote: "The teacher was patient, and I loved that every class is recorded.", test_sofiane_name: "Sofiane, Algiers",
+                // CTA
+                cta_title: "Join thousands of Algerian learners improving their English with PECSB.", cta_register: "Register Now",
                 // Footer
-                footer_contact: "Contact Us: info@pecsb.dz", footer_partnership: "In Partnership with the Ministry of Education", footer_support: "Support", footer_privacy: "Privacy Policy",
-                // Views
-                view_test_title: "English Placement Test", view_test_start: "Start Test", view_test_result: "Your Level: B2 Intermediate",
-                view_student_title: "Student Dashboard", view_student_courses: "Enrolled Courses", view_student_lessons: "Recorded Lessons", view_student_certificates: "Certificates",
-                view_teacher_title: "Teacher Dashboard", view_teacher_schedule: "My Schedule", view_teacher_salary: "Salary Tracker", view_teacher_stats: "Performance Stats",
+                footer_contact_info: "Contact Us: info@pecsb.dz | Office: PECSB, Kuala Lumpur & Algeria Representative Office", footer_partnership: "In Partnership with the Ministry of Education", footer_support: "Support", footer_privacy: "Privacy Policy",
+                
+                // Courses Page
+                view_courses_title: "Our English Programs", view_courses_intro: "Whether you are a beginner, student, or working professional, we have a course that fits your goal. All courses are conducted by trained teachers and monitored by PECSB for quality assurance.",
+                course_desc: "Description", course_duration: "Duration", course_fee: "Fee", course_level: "Level", course_cert: "Certification",
+                course_gep_detail: "Improve your grammar, speaking, listening, and writing through practical lessons.", course_gep_level: "Beginner – Intermediate", course_gep_cert: "PECSB Certificate",
+                course_aep_detail: "Learn essay writing, presentation skills, and academic vocabulary to prepare for university.", course_aep_level: "Intermediate – Advanced", course_aep_cert: "PECSB + Partner University",
+                course_training_detail: "Short, specialized English for business, tourism, oil & gas, and other fields.", course_training_level: "All levels", course_training_cert: "PECSB Certificate",
+                course_get_detail: "Fun and engaging English learning for secondary students (ages 13–18).", course_get_level: "Foundation", course_get_cert: "PECSB Certificate",
+                course_format_title: "Learning Format", format_online: "Live Online or Physical Centers", format_recorded: "Recorded Sessions Available", format_trial: "Free Trial Class for New Students", course_trial_button: "Book Free Trial Class",
+
+                // Placement Test Page
+                view_test_title: "Check Your English Level", test_intro: "Not sure where to start? Take our free placement test. It takes only 20 minutes to know your level!",
+                test_instruction_1: "Make sure you are in a quiet place.", test_instruction_2: "The test has 40 questions (grammar, vocabulary, and reading).", test_instruction_3: "You will see your result instantly after submitting.",
+                test_submit: "Submit Test & Get Result", test_congrats: "Congratulations!", test_result_b1: "Your English level is Intermediate (B1).", test_recommend_aep: "We recommend you join the Academic English Program (AEP).", test_recommend_button: "Register for Recommended Course", test_q1_text: "Question 1: Choose the correct past simple tense.", test_q1_a: "She goed to the market yesterday.", test_q1_b: "She went to the market yesterday.", test_q1_c: "She has went to the market yesterday.",
+                
+                // Find Teacher Page
+                view_teacher_title: "Meet Our Certified Teachers", teacher_about: "About Me", teacher_experience: "Experience", teacher_level: "CELTA Certified, Bachelor in English", teacher_filter_level: "Level", teacher_filter_specialty: "Specialty", teacher_filter_gender: "Gender", teacher_filter_time: "Time", teacher_rating: "Rating", teacher_availability: "Availability Schedule", teacher_trial: "Book Free Trial",
+                teacher_leila_bio: "Hello! My name is Leila, and I have 6 years of teaching experience. I love helping students improve their speaking confidence.", teacher_leila_exp: "TESOL Certified | 1,000+ online classes completed.",
+
+                // Dashboards
+                view_student_title: "Student Dashboard", stud_courses: "My Courses", stud_recorded: "Recorded Classes", stud_homework: "Homework", stud_certificates: "Certificates", stud_payments: "Payments", stud_chat: "Chat Support",
+                view_teacher_title: "Teacher Dashboard", teach_schedule: "Schedule", teach_salary: "Salary Tracker", teach_training: "Training Materials", teach_feedback: "Student Feedback", teach_support: "Support Ticket",
+                
+                // Contact Page
+                view_contact_title: "Contact & Support", contact_intro: "We’re here to help you. If you need any assistance, contact our support team.", contact_form_name: "Name", contact_form_email: "Email / Phone", contact_form_msg: "Message", contact_submit: "Submit Ticket", contact_chat: "Chat with Admin",
             },
             ar: {
                 // Nav
-                logo: "بيكسـب", nav_home: "الرئيسية", nav_find_teacher: "ابحث عن أستاذ", nav_courses: "الدورات", nav_test: "اختبار تحديد المستوى", nav_login: "تسجيل الدخول / التسجيل",
+                logo: "بيكسـب", nav_home: "الرئيسية", nav_find_teacher: "ابحث عن أستاذ", nav_courses: "الدورات", nav_test: "اختبار تحديد المستوى", nav_login: "تسجيل الدخول / التسجيل", nav_contact: "اتصل بنا",
                 // Hero
-                hero_tagline: "تعلم الإنجليزية في أي وقت وأي مكان في الجزائر.", hero_button: "ابدأ اختبار تحديد المستوى مجاناً",
+                hero_title: "أهلاً بك في بيكسب إنجليزي الجزائر", hero_tagline: "تعلم الإنجليزية في أي وقت وأي مكان في الجزائر 🇩🇿", hero_subtext: "دروس موثوقة مع أساتذة جزائريين معتمدين — دفع آمن، دروس مسجلة، ونتائج حقيقية.", hero_test_button: "ابدأ اختبار تحديد المستوى مجاناً", hero_find_teacher: "ابحث عن أستاذك",
                 // Features
-                feat_title: "لماذا تختار بيكسب؟", feat_safe_payments: "دفع آمن", feat_certified_teachers: "أساتذة معتمدون", feat_recorded_lessons: "دروس مسجلة", feat_progress_tracking: "تتبع تقدم الطالب",
-                // Teachers
-                teacher_title: "تعرف على أفضل أساتذتنا المعتمدين", teacher_rating: "التقييم", teacher_trial: "احجز حصة تجريبية",
-                // Courses
-                course_title: "حزم الدورات لدينا", course_duration: "المدة:", course_price: "السعر:", course_gep_name: "برنامج اللغة الإنجليزية العامة (GEP)", course_aep_name: "برنامج اللغة الإنجليزية الأكاديمية (AEP)", course_training_name: "التدريب المهني", course_get_name: "التدريب على الامتحانات العالمية (GET)",
+                feat_title: "لماذا تختار بيكسب؟", feat_safe_payments: "دفع آمن", feat_safe_payments_desc: "يتم التعامل مع جميع المعاملات بأمان من قبل بيكسب.", feat_certified_teachers: "أساتذة معتمدون", feat_certified_teachers_desc: "تمت الموافقة عليهم بعد تدريب ومقابلة صارمة.", feat_recorded_lessons: "دروس مسجلة", feat_recorded_lessons_desc: "تعلم بأمان وراجع الدروس في أي وقت.", feat_flexible_learning: "تعلم مرن", feat_flexible_learning_desc: "خيارات عبر الإنترنت، أو في المراكز، أو مختلطة.", feat_certificate: "شهادة معتمدة", feat_certificate_desc: "احصل على اعتراف دولي بعد الانتهاء.",
+                // Programs Overview
+                prog_title: "نظرة عامة على البرامج", prog_gep_name: "GEP", prog_gep_desc: "بناء ثقتك في التواصل اليومي.", prog_aep_name: "AEP", prog_aep_desc: "تحسين اللغة الإنجليزية الأكاديمية والجامعية.", prog_training_name: "التدريب", prog_training_desc: "الإنجليزية للأعمال والمهنيين.", prog_get_name: "GET", prog_get_desc: "الإنجليزية التفاعلية للمراهقين (13-18 سنة).", prog_learn_more: "اعرف المزيد",
                 // Testimonials
-                test_title: "ماذا يقول طلابنا عنا؟",
+                test_title: "ماذا يقول طلابنا؟", test_amina_quote: "قبل الانضمام إلى بيكسب، لم أتمكن من التحدث بثقة. الآن أستعد للجامعة في الخارج.", test_amina_name: "أمينة، وهران", test_sofiane_quote: "كان الأستاذ صبوراً، وأحببت أن كل درس مسجل.", test_sofiane_name: "سفيان، الجزائر العاصمة",
+                // CTA
+                cta_title: "انضم إلى الآلاف من المتعلمين الجزائريين الذين يحسنون لغتهم الإنجليزية مع بيكسب.", cta_register: "سجل الآن",
                 // Footer
-                footer_contact: "اتصل بنا: info@pecsb.dz", footer_partnership: "بالشراكة مع وزارة التربية والتعليم", footer_support: "الدعم", footer_privacy: "سياسة الخصوصية",
-                // Views
-                view_test_title: "اختبار تحديد مستوى اللغة الإنجليزية", view_test_start: "ابدأ الاختبار", view_test_result: "مستواك: B2 متوسط",
-                view_student_title: "لوحة تحكم الطالب", view_student_courses: "الدورات المسجل بها", view_student_lessons: "الدروس المسجلة", view_student_certificates: "الشهادات",
-                view_teacher_title: "لوحة تحكم الأستاذ", view_teacher_schedule: "جدولي", view_teacher_salary: "تتبع الراتب", view_teacher_stats: "إحصائيات الأداء",
+                footer_contact_info: "اتصل بنا: info@pecsb.dz | المكتب: PECSB، كوالالمبور ومكتب تمثيل الجزائر", footer_partnership: "بالشراكة مع وزارة التربية والتعليم", footer_support: "الدعم", footer_privacy: "سياسة الخصوصية",
+                
+                // Courses Page
+                view_courses_title: "برامجنا للغة الإنجليزية", view_courses_intro: "سواء كنت مبتدئًا أو طالبًا أو محترفًا عاملاً، لدينا دورة تناسب هدفك. يتم تدريس جميع الدورات من قبل أساتذة مدربين ويتم مراقبتها من قبل PECSB لضمان الجودة.",
+                course_desc: "الوصف", course_duration: "المدة", course_fee: "الرسوم", course_level: "المستوى", course_cert: "الشهادة",
+                course_gep_detail: "تحسين قواعد اللغة والتحدث والاستماع والكتابة من خلال دروس عملية.", course_gep_level: "مبتدئ – متوسط", course_gep_cert: "شهادة PECSB",
+                course_aep_detail: "تعلم كتابة المقالات، ومهارات العرض، والمفردات الأكاديمية للتحضير للجامعة.", course_aep_level: "متوسط – متقدم", course_aep_cert: "PECSB + جامعة شريكة",
+                course_training_detail: "دورات قصيرة ومتخصصة للغة الإنجليزية للأعمال والسياحة والنفط والغاز ومجالات أخرى.", course_training_level: "جميع المستويات", course_training_cert: "شهادة PECSB",
+                course_get_detail: "تعلم ممتع وجذاب للغة الإنجليزية لطلاب المرحلة الثانوية (13-18 سنة).", course_get_level: "تأسيسي", course_get_cert: "شهادة PECSB",
+                course_format_title: "صيغة التعلم", format_online: "مباشر عبر الإنترنت أو في المراكز الفعلية", format_recorded: "الدروس المسجلة متاحة", format_trial: "حصة تجريبية مجانية للطلاب الجدد", course_trial_button: "احجز حصة تجريبية مجانية",
+
+                // Placement Test Page
+                view_test_title: "تحقق من مستوى لغتك الإنجليزية", test_intro: "لست متأكداً من أين تبدأ؟ قم بإجراء اختبار تحديد المستوى المجاني الخاص بنا. يستغرق الأمر 20 دقيقة فقط لمعرفة مستواك!",
+                test_instruction_1: "تأكد من أنك في مكان هادئ.", test_instruction_2: "يحتوي الاختبار على 40 سؤالاً (قواعد، مفردات، وقراءة).", test_instruction_3: "سترى نتيجتك فوراً بعد التقديم.",
+                test_submit: "إرسال الاختبار والحصول على النتيجة", test_congrats: "تهانينا!", test_result_b1: "مستوى لغتك الإنجليزية هو متوسط (B1).", test_recommend_aep: "نوصي بالانضمام إلى برنامج اللغة الإنجليزية الأكاديمية (AEP).", test_recommend_button: "التسجيل في الدورة الموصى بها", test_q1_text: "السؤال 1: اختر الزمن الماضي البسيط الصحيح.", test_q1_a: "ذهبت هي إلى السوق البارحة.", test_q1_b: "ذهبت هي إلى السوق البارحة.", test_q1_c: "ذهبت هي إلى السوق البارحة.", // Text is the same but grammar is tested in EN.
+                
+                // Find Teacher Page
+                view_teacher_title: "قابل أساتذتنا المعتمدين", teacher_about: "عني", teacher_experience: "الخبرة", teacher_level: "معتمدة من CELTA، بكالوريوس في اللغة الإنجليزية", teacher_filter_level: "المستوى", teacher_filter_specialty: "التخصص", teacher_filter_gender: "النوع", teacher_filter_time: "الوقت المتاح", teacher_rating: "التقييم", teacher_availability: "جدول التوفر", teacher_trial: "احجز حصة تجريبية مجانية",
+                teacher_leila_bio: "مرحباً! اسمي ليلى، ولدي 6 سنوات من الخبرة في التدريس. أحب مساعدة الطلاب على تحسين ثقتهم في التحدث.", teacher_leila_exp: "معتمدة من TESOL | أكملت أكثر من 1,000 حصة عبر الإنترنت.",
+
+                // Dashboards
+                stud_courses: "دوراتي", stud_recorded: "الدروس المسجلة", stud_homework: "الواجبات المنزلية", stud_certificates: "الشهادات", stud_payments: "المدفوعات", stud_chat: "دعم الدردشة",
+                teach_schedule: "الجدول الزمني", teach_salary: "تتبع الراتب", teach_training: "مواد التدريب", teach_feedback: "ملاحظات الطلاب", teach_support: "تذكرة الدعم",
+
+                // Contact Page
+                view_contact_title: "الاتصال والدعم", contact_intro: "نحن هنا لمساعدتك. إذا كنت بحاجة إلى أي مساعدة، فاتصل بفريق الدعم لدينا.", contact_form_name: "الاسم", contact_form_email: "البريد الإلكتروني / الهاتف", contact_form_msg: "الرسالة", contact_submit: "إرسال تذكرة", contact_chat: "الدردشة مع المسؤول",
             }
         };
 
+        // --- Core App Logic ---
         const T = (key) => translations[AppState.lang][key] || key;
 
         function updateTexts() {
@@ -128,7 +175,6 @@
         function toggleLanguage() {
             AppState.lang = AppState.lang === 'en' ? 'ar' : 'en';
             updateTexts();
-            // Re-render the current view to apply RTL/LRT consistently
             renderView(AppState.currentView); 
         }
 
@@ -145,20 +191,22 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
-            // Re-apply localization in case of dynamic content (though mostly static here)
-            updateTexts();
+            updateTexts(); // Re-apply localization
+        }
+        
+        // Mock function to simulate placement test completion
+        function completeTest() {
+            // In a real app, this would grade 40 questions and determine a level.
+            // Mocking B1 result for demonstration.
+            document.getElementById('test-questions').classList.add('hidden');
+            document.getElementById('test-submit-button').classList.add('hidden');
+            document.getElementById('test-result').classList.remove('hidden');
         }
 
         // Initialize on load
         window.onload = () => {
-            updateTexts();
-            renderView('home'); // Start on the homepage
-            
-            // Attach toggle listener
-            document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
-            
-            // Attach nav listeners (using event delegation for simplicity)
-            document.querySelectorAll('nav a').forEach(link => {
+            // Global Nav Listeners
+            document.querySelectorAll('nav a[data-view], button[data-view]').forEach(link => {
                 const viewName = link.getAttribute('data-view');
                 if (viewName) {
                     link.addEventListener('click', (e) => {
@@ -167,433 +215,629 @@
                     });
                 }
             });
+            
+            // Attach toggle listener
+            document.getElementById('lang-toggle').addEventListener('click', toggleLanguage);
+            document.getElementById('test-submit-button').addEventListener('click', completeTest);
 
-            // Attach hero button listener
-            document.getElementById('hero-test-button').addEventListener('click', (e) => {
-                e.preventDefault();
-                renderView('placement-test');
-            });
+            updateTexts();
+            renderView('home'); // Start on the homepage
         };
     </script>
     
     <!-- Top Navigation Bar -->
-    <header class="sticky top-0 z-50 bg-white shadow-md">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <header class="sticky top-0 z-50 bg-white shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20">
             <!-- Logo -->
-            <div class="flex items-center space-x-2">
-                <span class="text-2xl font-black text-pecsb-blue" data-lang-key="logo">PECSB</span>
-                <span class="text-xl">🇩🇿</span> <!-- Algeria Flag Placeholder -->
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl font-black text-pecsb-blue" data-lang-key="logo">PECSB</span>
+                <span class="text-2xl">🇩🇿</span> <!-- Algeria Flag -->
             </div>
 
-            <!-- Main Navigation Links -->
-            <div class="hidden md:flex space-x-6 text-pecsb-dark font-medium">
-                <a href="#" class="hover:text-pecsb-green transition duration-150" data-lang-key="nav_home" data-view="home">Home</a>
-                <a href="#" class="hover:text-pecsb-green transition duration-150" data-lang-key="nav_find_teacher" data-view="teacher-dashboard">Find a Teacher</a>
-                <a href="#" class="hover:text-pecsb-green transition duration-150" data-lang-key="nav_courses" data-view="student-dashboard">Courses</a>
-                <a href="#" class="hover:text-pecsb-green transition duration-150" data-lang-key="nav_test" data-view="placement-test">Placement Test</a>
+            <!-- Main Navigation Links (Hidden on mobile) -->
+            <div class="hidden lg:flex space-x-6 text-pecsb-dark font-medium">
+                <a href="#" class="hover:text-pecsb-green transition duration-150 p-2" data-lang-key="nav_home" data-view="home">Home</a>
+                <a href="#" class="hover:text-pecsb-green transition duration-150 p-2" data-lang-key="nav_find_teacher" data-view="find-teacher">Find a Teacher</a>
+                <a href="#" class="hover:text-pecsb-green transition duration-150 p-2" data-lang-key="nav_courses" data-view="courses">Courses</a>
+                <a href="#" class="hover:text-pecsb-green transition duration-150 p-2" data-lang-key="nav_test" data-view="placement-test">Placement Test</a>
+                <a href="#" class="hover:text-pecsb-green transition duration-150 p-2" data-lang-key="nav_contact" data-view="contact">Contact</a>
             </div>
             
             <!-- Auth & Language Toggle -->
             <div class="flex items-center space-x-4">
+                 <!-- Language Toggle -->
                 <button id="lang-toggle" class="px-3 py-1 text-sm font-semibold rounded-full bg-pecsb-light border border-pecsb-blue text-pecsb-blue hover:bg-pecsb-blue hover:text-white transition">
                     <span id="current-lang-text">ع/En</span>
                 </button>
-                <a href="#" class="px-4 py-2 text-white bg-pecsb-green rounded-full hover:bg-pecsb-blue transition duration-150 font-medium text-sm md:text-base" data-lang-key="nav_login">Login / Register</a>
+                <!-- Login/Register Button -->
+                <a href="#" class="hidden sm:block px-4 py-2 text-white bg-pecsb-green rounded-full hover:bg-pecsb-blue transition duration-150 font-semibold" data-lang-key="nav_login">Login / Register</a>
+                <!-- Mobile Menu Icon (Placeholder) -->
+                <button class="lg:hidden text-pecsb-dark">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
+                </button>
             </div>
         </nav>
     </header>
 
     <!-- Main Content Area -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         
         <!-- ============================================== -->
         <!-- 1. HOME VIEW (Default Landing Page) -->
         <!-- ============================================== -->
-        <section id="home-view" class="view-content active">
-            <!-- Hero Section -->
-            <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-16 p-6 lg:p-12">
+        <section id="home-view" class="view-content active space-y-16">
+            <h1 class="sr-only" data-lang-key="hero_title">Welcome to PECSB English Algeria</h1>
+            <!-- A. Hero Section -->
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden p-6 lg:p-12 border-b-8 border-pecsb-green">
                 <div class="flex flex-col lg:flex-row items-center">
                     <!-- Text Content -->
-                    <div class="lg:w-1/2 p-4 lg:p-8 text-center lg:text-left">
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-pecsb-blue leading-tight mb-6">
-                            <span data-lang-key="hero_tagline">Learn English Anytime, Anywhere in Algeria.</span>
-                        </h1>
-                        <p class="text-xl text-gray-600 mb-8">
-                            Connect with certified Algerian teachers through live, interactive video lessons tailored to your needs.
+                    <div class="lg:w-1/2 p-4 lg:p-0 text-center lg:text-left">
+                        <p class="text-xl font-medium text-pecsb-green mb-4">#1 Online English Platform in Algeria</p>
+                        <h2 class="text-4xl sm:text-5xl lg:text-5xl font-extrabold text-pecsb-blue leading-tight mb-6" data-lang-key="hero_tagline">
+                            Learn English Anytime, Anywhere in Algeria 🇩🇿
+                        </h2>
+                        <p class="text-lg text-gray-600 mb-8" data-lang-key="hero_subtext">
+                            Trusted lessons with certified Algerian teachers — safe payments, recorded classes, and real results.
                         </p>
-                        <button id="hero-test-button" class="px-8 py-4 bg-pecsb-green text-white font-bold text-lg rounded-full shadow-lg hover:bg-pecsb-blue transition duration-300 transform hover:scale-105">
-                            <span data-lang-key="hero_button">Take Free Placement Test</span>
-                        </button>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <button class="px-8 py-4 bg-pecsb-green text-white font-bold text-lg rounded-full shadow-lg hover:bg-pecsb-blue transition duration-300 transform hover:scale-105" data-lang-key="hero_test_button" data-view="placement-test">
+                                Take Free Placement Test
+                            </button>
+                            <button class="px-8 py-4 bg-pecsb-blue text-white font-bold text-lg rounded-full border border-pecsb-blue hover:bg-white hover:text-pecsb-blue transition duration-300 transform hover:scale-105" data-lang-key="hero_find_teacher" data-view="find-teacher">
+                                Find Your Teacher
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Image Placeholder (Smiling Teacher and Student on Video Call) -->
-                    <div class="lg:w-1/2 p-4 lg:p-8 relative">
-                        <!-- Placeholder Image (Using a URL for visual mock-up) -->
-                        <img src="https://placehold.co/800x600/10B981/ffffff?text=Video+Call+Teacher+%26+Student" alt="Teacher and student on a video call" class="rounded-2xl shadow-2xl w-full h-auto object-cover">
-                        <!-- Overlay Icon -->
-                        <div class="absolute inset-0 flex items-center justify-center bg-pecsb-blue bg-opacity-10 rounded-2xl">
-                            <!-- Video Icon (Lucide/Inline SVG) -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 drop-shadow-lg"><path d="m22 8-6 4 6 4V8Z"/><path d="M14 15V9a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2Z"/></svg>
-                        </div>
+                    <!-- Visuals Placeholder (Image of video call) -->
+                    <div class="lg:w-1/2 p-4 mt-8 lg:mt-0 relative">
+                        <!-- Placeholder Image (Teacher and student on video call) -->
+                        <img src="https://placehold.co/800x600/1e40af/ffffff?text=Teacher+and+Student+on+Video+Call" alt="Teacher and student connecting online" class="rounded-2xl shadow-2xl w-full h-auto object-cover">
                     </div>
                 </div>
             </div>
 
-            <!-- Key Features Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-pecsb-dark" data-lang-key="feat_title">Why Choose PECSB?</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- B. Why Choose PECSB Section -->
+            <div class="text-center">
+                <h3 class="text-3xl sm:text-4xl font-bold mb-10 text-pecsb-dark" data-lang-key="feat_title">Why Choose PECSB?</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
                     
                     <!-- Feature Card 1: Safe Payments -->
-                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300">
-                        <!-- Shield Icon (Lucide/Inline SVG) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mb-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
-                        <h3 class="text-xl font-semibold mb-2" data-lang-key="feat_safe_payments">Safe Payments</h3>
-                        <p class="text-gray-500 text-sm">Secure and flexible payment options locally and internationally.</p>
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300 border-t-4 border-pecsb-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mb-3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M16 12H8"/></svg>
+                        <h4 class="text-lg font-semibold mb-1" data-lang-key="feat_safe_payments">Safe Payments</h4>
+                        <p class="text-gray-500 text-xs" data-lang-key="feat_safe_payments_desc">All transactions handled securely by PECSB.</p>
                     </div>
 
                     <!-- Feature Card 2: Certified Teachers -->
-                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300">
-                        <!-- Badge/Certified Icon (Lucide/Inline SVG) -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300 border-t-4 border-pecsb-green">
                         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mb-3"><path d="M12 21.3c-2.4 0-4.7-.6-6.7-1.8L3 17.5V7.5L5.3 5.7c2-1.2 4.3-1.8 6.7-1.8s4.7.6 6.7 1.8L21 7.5v10l-2.3 2C16.7 20.7 14.4 21.3 12 21.3Z"/><path d="m9 12 2 2 4-4"/></svg>
-                        <h3 class="text-xl font-semibold mb-2" data-lang-key="feat_certified_teachers">Certified Teachers</h3>
-                        <p class="text-gray-500 text-sm">Highly qualified, native-level Algerian English language instructors.</p>
+                        <h4 class="text-lg font-semibold mb-1" data-lang-key="feat_certified_teachers">Certified Teachers</h4>
+                        <p class="text-gray-500 text-xs" data-lang-key="feat_certified_teachers_desc">Approved after rigorous training and interview.</p>
                     </div>
 
-                    <!-- Feature Card 3: Recorded Lessons -->
-                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300">
-                        <!-- Video/Monitor Icon (Lucide/Inline SVG) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mb-3"><rect width="20" height="15" x="2" y="3" rx="2"/><path d="M17 19H7"/><path d="m10 12 5-3-5-3v6z"/></svg>
-                        <h3 class="text-xl font-semibold mb-2" data-lang-key="feat_recorded_lessons">Recorded Lessons</h3>
-                        <p class="text-gray-500 text-sm">Review every lesson at your convenience for better retention.</p>
+                    <!-- Feature Card 3: Recorded Classes -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300 border-t-4 border-pecsb-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mb-3"><rect width="20" height="15" x="2" y="3" rx="2"/><path d="M17 19H7"/><path d="M12 12V9"/></svg>
+                        <h4 class="text-lg font-semibold mb-1" data-lang-key="feat_recorded_lessons">Recorded Classes</h4>
+                        <p class="text-gray-500 text-xs" data-lang-key="feat_recorded_lessons_desc">Learn safely, review lessons anytime.</p>
                     </div>
 
-                    <!-- Feature Card 4: Progress Tracking -->
-                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300">
-                        <!-- Chart Icon (Lucide/Inline SVG) -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mb-3"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
-                        <h3 class="text-xl font-semibold mb-2" data-lang-key="feat_progress_tracking">Student Progress Tracking</h3>
-                        <p class="text-gray-500 text-sm">See your linguistic growth and milestones clearly defined.</p>
+                    <!-- Feature Card 4: Flexible Learning -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300 border-t-4 border-pecsb-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mb-3"><path d="M12 22a8 8 0 0 0 8-8V5l-8 3-8-3v9a8 8 0 0 0 8 8Z"/><path d="m9.5 14.5 5-5"/><path d="M14.5 14.5-9.5-9.5"/></svg>
+                        <h4 class="text-lg font-semibold mb-1" data-lang-key="feat_flexible_learning">Flexible Learning</h4>
+                        <p class="text-gray-500 text-xs" data-lang-key="feat_flexible_learning_desc">Online, at centers, or hybrid options.</p>
+                    </div>
+                    
+                    <!-- Feature Card 5: Certificate Provided -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-xl transition duration-300 border-t-4 border-pecsb-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mb-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2Z"/><path d="M15 15.5H19"/></svg>
+                        <h4 class="text-lg font-semibold mb-1" data-lang-key="feat_certificate">Certificate Provided</h4>
+                        <p class="text-gray-500 text-xs" data-lang-key="feat_certificate_desc">Receive international recognition after completion.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Teacher Directory Preview -->
-            <div class="mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-pecsb-dark" data-lang-key="teacher_title">Meet Our Top Certified Teachers</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    
-                    <!-- Teacher Card 1 -->
-                    <div class="bg-white rounded-xl card-shadow overflow-hidden text-center">
-                        <img src="https://placehold.co/400x300/1e40af/ffffff?text=Teacher+A" alt="Teacher Ahmed" class="w-full h-40 object-cover">
-                        <div class="p-4">
-                            <h4 class="text-lg font-bold text-pecsb-dark">Mr. Ahmed K.</h4>
-                            <p class="text-sm text-gray-500 mb-2">IELTS & TOEFL Expert</p>
-                            <div class="star-rating mb-3 flex justify-center items-center">
-                                <span class="font-bold mr-1">4.9</span>
-                                <span>⭐⭐⭐⭐⭐</span>
-                            </div>
-                            <button class="w-full py-2 bg-pecsb-green text-white rounded-full text-sm hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Trial Class</button>
-                        </div>
+            <!-- C. Programs Overview -->
+            <div class="text-center">
+                <h3 class="text-3xl sm:text-4xl font-bold mb-10 text-pecsb-dark" data-lang-key="prog_title">Programs Overview</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                    <!-- Program 1: GEP -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-2xl transition duration-300 border-t-4 border-pecsb-green">
+                        <h4 class="text-3xl font-extrabold text-pecsb-green mb-2" data-lang-key="prog_gep_name">GEP</h4>
+                        <p class="text-gray-600 mb-4 flex-grow" data-lang-key="prog_gep_desc">Build your confidence in daily communication.</p>
+                        <button class="w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium text-sm" data-lang-key="prog_learn_more" data-view="courses">Learn More</button>
                     </div>
                     
-                    <!-- Teacher Card 2 -->
-                    <div class="bg-white rounded-xl card-shadow overflow-hidden text-center">
-                        <img src="https://placehold.co/400x300/10b981/ffffff?text=Teacher+B" alt="Teacher Fatma" class="w-full h-40 object-cover">
-                        <div class="p-4">
-                            <h4 class="text-lg font-bold text-pecsb-dark">Ms. Fatma S.</h4>
-                            <p class="text-sm text-gray-500 mb-2">General English (A1-C1)</p>
-                            <div class="star-rating mb-3 flex justify-center items-center">
-                                <span class="font-bold mr-1">5.0</span>
-                                <span>⭐⭐⭐⭐⭐</span>
-                            </div>
-                            <button class="w-full py-2 bg-pecsb-green text-white rounded-full text-sm hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Trial Class</button>
-                        </div>
+                    <!-- Program 2: AEP -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-2xl transition duration-300 border-t-4 border-pecsb-blue">
+                        <h4 class="text-3xl font-extrabold text-pecsb-blue mb-2" data-lang-key="prog_aep_name">AEP</h4>
+                        <p class="text-gray-600 mb-4 flex-grow" data-lang-key="prog_aep_desc">Improve academic and university English.</p>
+                        <button class="w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium text-sm" data-lang-key="prog_learn_more" data-view="courses">Learn More</button>
                     </div>
 
-                    <!-- Teacher Card 3 -->
-                    <div class="bg-white rounded-xl card-shadow overflow-hidden text-center">
-                        <img src="https://placehold.co/400x300/1e40af/ffffff?text=Teacher+C" alt="Teacher Amine" class="w-full h-40 object-cover">
-                        <div class="p-4">
-                            <h4 class="text-lg font-bold text-pecsb-dark">Mr. Amine H.</h4>
-                            <p class="text-sm text-gray-500 mb-2">Business & Professional</p>
-                            <div class="star-rating mb-3 flex justify-center items-center">
-                                <span class="font-bold mr-1">4.7</span>
-                                <span>⭐⭐⭐⭐</span>
-                            </div>
-                            <button class="w-full py-2 bg-pecsb-green text-white rounded-full text-sm hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Trial Class</button>
-                        </div>
+                    <!-- Program 3: Training -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-2xl transition duration-300 border-t-4 border-pecsb-green">
+                        <h4 class="text-3xl font-extrabold text-pecsb-green mb-2" data-lang-key="prog_training_name">Training</h4>
+                        <p class="text-gray-600 mb-4 flex-grow" data-lang-key="prog_training_desc">English for business and professionals.</p>
+                        <button class="w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium text-sm" data-lang-key="prog_learn_more" data-view="courses">Learn More</button>
                     </div>
 
-                    <!-- Teacher Card 4 -->
-                    <div class="bg-white rounded-xl card-shadow overflow-hidden text-center">
-                        <img src="https://placehold.co/400x300/10b981/ffffff?text=Teacher+D" alt="Teacher Souad" class="w-full h-40 object-cover">
-                        <div class="p-4">
-                            <h4 class="text-lg font-bold text-pecsb-dark">Ms. Souad B.</h4>
-                            <p class="text-sm text-gray-500 mb-2">Kids & Teens Specialist</p>
-                            <div class="star-rating mb-3 flex justify-center items-center">
-                                <span class="font-bold mr-1">4.8</span>
-                                <span>⭐⭐⭐⭐⭐</span>
-                            </div>
-                            <button class="w-full py-2 bg-pecsb-green text-white rounded-full text-sm hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Trial Class</button>
-                        </div>
+                    <!-- Program 4: GET -->
+                    <div class="bg-white p-6 rounded-xl card-shadow flex flex-col items-center text-center hover:shadow-2xl transition duration-300 border-t-4 border-pecsb-blue">
+                        <h4 class="text-3xl font-extrabold text-pecsb-blue mb-2" data-lang-key="prog_get_name">GET</h4>
+                        <p class="text-gray-600 mb-4 flex-grow" data-lang-key="prog_get_desc">Interactive English for teenagers (ages 13–18).</p>
+                        <button class="w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium text-sm" data-lang-key="prog_learn_more" data-view="courses">Learn More</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Course Packages Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-pecsb-dark" data-lang-key="course_title">Our Course Packages</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                    <!-- Course Card 1: GEP -->
-                    <div class="bg-pecsb-blue/5 border-t-4 border-pecsb-blue p-6 rounded-xl card-shadow flex flex-col hover:shadow-2xl transition duration-300">
-                        <h3 class="text-2xl font-bold text-pecsb-blue mb-3" data-lang-key="course_gep_name">General English Program (GEP)</h3>
-                        <p class="text-gray-600 mb-4 flex-grow">Fluency in daily conversation, listening, and essential grammar.</p>
-                        <div class="text-lg font-semibold mb-2">
-                            <span data-lang-key="course_duration">Duration:</span> 12 Weeks
+            <!-- D. Student Testimonials -->
+            <div>
+                <h3 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-pecsb-dark" data-lang-key="test_title">What Our Students Say</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    
+                    <!-- Testimonial 1: Amina -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-8 border-pecsb-green/70">
+                        <div class="flex items-start mb-4">
+                            <img src="https://placehold.co/60x60/059669/ffffff?text=A" alt="Student Amina" class="rounded-full mr-4 w-14 h-14 object-cover">
+                            <div>
+                                <div class="star-rating text-lg">⭐⭐⭐⭐⭐</div>
+                                <div class="font-semibold text-pecsb-dark" data-lang-key="test_amina_name">Amina, Oran</div>
+                            </div>
                         </div>
-                        <div class="text-2xl font-extrabold text-pecsb-green">
-                            <span data-lang-key="course_price">Price:</span> 15,000 DZD
-                        </div>
-                        <button class="mt-4 py-3 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium">Enroll Now</button>
+                        <p class="text-gray-700 italic" data-lang-key="test_amina_quote">"Before joining PECSB, I could not speak confidently. Now I’m preparing for university abroad."</p>
                     </div>
-
-                    <!-- Course Card 2: AEP -->
-                    <div class="bg-pecsb-green/5 border-t-4 border-pecsb-green p-6 rounded-xl card-shadow flex flex-col hover:shadow-2xl transition duration-300">
-                        <h3 class="text-2xl font-bold text-pecsb-green mb-3" data-lang-key="course_aep_name">Academic English Program (AEP)</h3>
-                        <p class="text-gray-600 mb-4 flex-grow">Writing essays, academic research, and presentation skills for university.</p>
-                        <div class="text-lg font-semibold mb-2">
-                            <span data-lang-key="course_duration">Duration:</span> 16 Weeks
+                    
+                    <!-- Testimonial 2: Sofiane -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-8 border-pecsb-blue/70">
+                        <div class="flex items-start mb-4">
+                            <img src="https://placehold.co/60x60/1e40af/ffffff?text=S" alt="Student Sofiane" class="rounded-full mr-4 w-14 h-14 object-cover">
+                            <div>
+                                <div class="star-rating text-lg">⭐⭐⭐⭐⭐</div>
+                                <div class="font-semibold text-pecsb-dark" data-lang-key="test_sofiane_name">Sofiane, Algiers</div>
+                            </div>
                         </div>
-                        <div class="text-2xl font-extrabold text-pecsb-blue">
-                            <span data-lang-key="course_price">Price:</span> 20,000 DZD
-                        </div>
-                        <button class="mt-4 py-3 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition font-medium">Enroll Now</button>
-                    </div>
-
-                    <!-- Course Card 3: Training -->
-                    <div class="bg-pecsb-blue/5 border-t-4 border-pecsb-blue p-6 rounded-xl card-shadow flex flex-col hover:shadow-2xl transition duration-300">
-                        <h3 class="text-2xl font-bold text-pecsb-blue mb-3" data-lang-key="course_training_name">Professional Training</h3>
-                        <p class="text-gray-600 mb-4 flex-grow">Business communication, negotiation, and corporate vocabulary.</p>
-                        <div class="text-lg font-semibold mb-2">
-                            <span data-lang-key="course_duration">Duration:</span> 8 Weeks
-                        </div>
-                        <div class="text-2xl font-extrabold text-pecsb-green">
-                            <span data-lang-key="course_price">Price:</span> 18,000 DZD
-                        </div>
-                        <button class="mt-4 py-3 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium">Enroll Now</button>
-                    </div>
-
-                    <!-- Course Card 4: GET -->
-                    <div class="bg-pecsb-green/5 border-t-4 border-pecsb-green p-6 rounded-xl card-shadow flex flex-col hover:shadow-2xl transition duration-300">
-                        <h3 class="text-2xl font-bold text-pecsb-green mb-3" data-lang-key="course_get_name">Global Exam Training (GET)</h3>
-                        <p class="text-gray-600 mb-4 flex-grow">Intensive prep for IELTS, TOEFL, and Cambridge exams with mock tests.</p>
-                        <div class="text-lg font-semibold mb-2">
-                            <span data-lang-key="course_duration">Duration:</span> 10 Weeks
-                        </div>
-                        <div class="text-2xl font-extrabold text-pecsb-blue">
-                            <span data-lang-key="course_price">Price:</span> 25,000 DZD
-                        </div>
-                        <button class="mt-4 py-3 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition font-medium">Enroll Now</button>
+                        <p class="text-gray-700 italic" data-lang-key="test_sofiane_quote">"The teacher was patient, and I loved that every class is recorded."</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Testimonials Section -->
-            <div class="mb-16">
-                <h2 class="text-3xl sm:text-4xl font-bold text-center mb-10 text-pecsb-dark" data-lang-key="test_title">What Our Students Say</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    
-                    <!-- Testimonial 1 -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-pecsb-blue/50">
-                        <p class="text-gray-700 italic mb-4">"PECSB changed my career path. The teacher directory helped me find an IELTS expert right here in Algiers. The flexibility is unmatched!"</p>
-                        <div class="font-semibold text-pecsb-dark">— Yasmine M., Business Analyst</div>
-                        <div class="star-rating text-sm mt-1">⭐⭐⭐⭐⭐</div>
-                    </div>
-                    
-                    <!-- Testimonial 2 -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-pecsb-green/50">
-                        <p class="text-gray-700 italic mb-4">"The progress tracking is amazing. I can clearly see how much I've improved since starting the GEP course. Highly recommended for all Algerians."</p>
-                        <div class="font-semibold text-pecsb-dark">— Hakim D., University Student</div>
-                        <div class="star-rating text-sm mt-1">⭐⭐⭐⭐</div>
-                    </div>
-                    
-                    <!-- Testimonial 3 -->
-                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-pecsb-blue/50">
-                        <p class="text-gray-700 italic mb-4">"Safe payments and certified teachers gave me confidence. I appreciate having access to high-quality English education without leaving home."</p>
-                        <div class="font-semibold text-pecsb-dark">— Leila R., Homemaker</div>
-                        <div class="star-rating text-sm mt-1">⭐⭐⭐⭐⭐</div>
-                    </div>
+            <!-- E. Call to Action -->
+            <div class="bg-pecsb-blue p-10 rounded-2xl text-center text-white">
+                <h3 class="text-3xl font-bold mb-6" data-lang-key="cta_title">Join thousands of Algerian learners improving their English with PECSB.</h3>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="px-8 py-3 bg-pecsb-green text-white font-bold rounded-full shadow-lg hover:bg-pecsb-accent transition duration-300" data-lang-key="hero_test_button" data-view="placement-test">Take the Placement Test</button>
+                    <button class="px-8 py-3 bg-white text-pecsb-blue font-bold rounded-full shadow-lg hover:bg-pecsb-light transition duration-300" data-lang-key="cta_register">Register Now</button>
                 </div>
             </div>
         </section>
 
         <!-- ============================================== -->
-        <!-- 2. PLACEMENT TEST VIEW (Extra Page 1) -->
+        <!-- 2. COURSES PAGE (Extra Page) -->
+        <!-- ============================================== -->
+        <section id="courses-view" class="view-content p-8 bg-white rounded-3xl shadow-xl space-y-10">
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-4 text-center" data-lang-key="view_courses_title">Our English Programs</h2>
+            
+            <!-- Introduction -->
+            <p class="text-lg text-gray-600 max-w-4xl mx-auto text-center" data-lang-key="view_courses_intro">
+                Whether you are a beginner, student, or working professional, we have a course that fits your goal. All courses are conducted by trained teachers and monitored by PECSB for quality assurance.
+            </p>
+
+            <!-- Detailed Course Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- Course Card 1: GEP -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-8 border-pecsb-green flex flex-col">
+                    <h3 class="text-3xl font-extrabold text-pecsb-green mb-4" data-lang-key="prog_gep_name">GEP – General English Program</h3>
+                    <div class="text-gray-700 flex-grow space-y-3">
+                        <p class="font-semibold" data-lang-key="course_desc">Description: <span class="font-normal" data-lang-key="course_gep_detail">Improve your grammar, speaking, listening, and writing through practical lessons.</span></p>
+                        <p class="font-semibold" data-lang-key="course_duration">Duration: <span class="font-normal">8 weeks</span></p>
+                        <p class="font-semibold" data-lang-key="course_fee">Fee: <span class="font-normal">50 000 DZD</span></p>
+                        <p class="font-semibold" data-lang-key="course_level">Level: <span class="font-normal" data-lang-key="course_gep_level">Beginner – Intermediate</span></p>
+                        <p class="font-semibold" data-lang-key="course_cert">Certification: <span class="font-normal" data-lang-key="course_gep_cert">PECSB Certificate</span></p>
+                    </div>
+                    <button class="mt-6 py-3 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium">Enroll Now</button>
+                </div>
+
+                <!-- Course Card 2: AEP -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-8 border-pecsb-blue flex flex-col">
+                    <h3 class="text-3xl font-extrabold text-pecsb-blue mb-4" data-lang-key="prog_aep_name">AEP – Academic English Program</h3>
+                    <div class="text-gray-700 flex-grow space-y-3">
+                        <p class="font-semibold" data-lang-key="course_desc">Description: <span class="font-normal" data-lang-key="course_aep_detail">Learn essay writing, presentation skills, and academic vocabulary to prepare for university.</span></p>
+                        <p class="font-semibold" data-lang-key="course_duration">Duration: <span class="font-normal">8 weeks</span></p>
+                        <p class="font-semibold" data-lang-key="course_fee">Fee: <span class="font-normal">55 000 DZD</span></p>
+                        <p class="font-semibold" data-lang-key="course_level">Level: <span class="font-normal" data-lang-key="course_aep_level">Intermediate – Advanced</span></p>
+                        <p class="font-semibold" data-lang-key="course_cert">Certification: <span class="font-normal" data-lang-key="course_aep_cert">PECSB + Partner University</span></p>
+                    </div>
+                    <button class="mt-6 py-3 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition font-medium">Enroll Now</button>
+                </div>
+
+                <!-- Course Card 3: Training -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-8 border-pecsb-green flex flex-col">
+                    <h3 class="text-3xl font-extrabold text-pecsb-green mb-4" data-lang-key="prog_training_name">Training Courses</h3>
+                    <div class="text-gray-700 flex-grow space-y-3">
+                        <p class="font-semibold" data-lang-key="course_desc">Description: <span class="font-normal" data-lang-key="course_training_detail">Short, specialized English for business, tourism, oil & gas, and other fields.</span></p>
+                        <p class="font-semibold" data-lang-key="course_duration">Duration: <span class="font-normal">12 weeks</span></p>
+                        <p class="font-semibold" data-lang-key="course_fee">Fee: <span class="font-normal">65 000 DZD</span></p>
+                        <p class="font-semibold" data-lang-key="course_level">Level: <span class="font-normal" data-lang-key="course_training_level">All levels</span></p>
+                        <p class="font-semibold" data-lang-key="course_cert">Certification: <span class="font-normal" data-lang-key="course_training_cert">PECSB Certificate</span></p>
+                    </div>
+                    <button class="mt-6 py-3 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition font-medium">Enroll Now</button>
+                </div>
+
+                <!-- Course Card 4: GET -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-8 border-pecsb-blue flex flex-col">
+                    <h3 class="text-3xl font-extrabold text-pecsb-blue mb-4" data-lang-key="prog_get_name">GET – General English for Teenagers</h3>
+                    <div class="text-gray-700 flex-grow space-y-3">
+                        <p class="font-semibold" data-lang-key="course_desc">Description: <span class="font-normal" data-lang-key="course_get_detail">Fun and engaging English learning for secondary students (ages 13–18).</span></p>
+                        <p class="font-semibold" data-lang-key="course_duration">Duration: <span class="font-normal">Continuous</span></p>
+                        <p class="font-semibold" data-lang-key="course_fee">Fee: <span class="font-normal">8 000 DZD/week</span></p>
+                        <p class="font-semibold" data-lang-key="course_level">Level: <span class="font-normal" data-lang-key="course_get_level">Foundation</span></p>
+                        <p class="font-semibold" data-lang-key="course_cert">Certification: <span class="font-normal" data-lang-key="course_get_cert">PECSB Certificate</span></p>
+                    </div>
+                    <button class="mt-6 py-3 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition font-medium">Enroll Now</button>
+                </div>
+            </div>
+
+            <!-- Learning Format -->
+            <div class="pt-8">
+                <h3 class="text-2xl font-bold text-pecsb-dark mb-4" data-lang-key="course_format_title">Learning Format</h3>
+                <ul class="grid grid-cols-1 md:grid-cols-3 gap-4 text-lg text-gray-700">
+                    <li class="p-3 bg-pecsb-light rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mr-2"><path d="M14 19H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4"/></svg>
+                        <span data-lang-key="format_online">Live Online or Physical Centers</span>
+                    </li>
+                    <li class="p-3 bg-pecsb-light rounded-lg flex items-center">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mr-2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m14.5 10.5-3 3-2-2"/></svg>
+                        <span data-lang-key="format_recorded">Recorded Sessions Available</span>
+                    </li>
+                    <li class="p-3 bg-pecsb-light rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-blue mr-2"><path d="M12 2a10 10 0 0 0-9.28 12.02l-1 5a1 1 0 0 0 1 1h16.5a1 1 0 0 0 1-1l-1-5A10 10 0 0 0 12 2Z"/></svg>
+                        <span data-lang-key="format_trial">Free Trial Class for New Students</span>
+                    </li>
+                </ul>
+                <div class="mt-8 text-center">
+                    <button class="px-8 py-3 bg-pecsb-green text-white font-bold text-lg rounded-full shadow-lg hover:bg-pecsb-blue transition duration-300" data-lang-key="course_trial_button" data-view="find-teacher">Book Free Trial Class</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- 3. PLACEMENT TEST PAGE (Extra Page) -->
         <!-- ============================================== -->
         <section id="placement-test-view" class="view-content p-8 bg-white rounded-3xl shadow-xl">
-            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_test_title">English Placement Test</h2>
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_test_title">Check Your English Level</h2>
             <div class="max-w-3xl mx-auto">
                 
-                <!-- Question Interface -->
+                <!-- Introduction and Instructions -->
+                <div class="text-center mb-8">
+                    <p class="text-lg text-gray-600 mb-4" data-lang-key="test_intro">Not sure where to start? Take our free placement test. It takes only 20 minutes to know your level!</p>
+                    <ul class="inline-block text-left text-gray-700 space-y-1">
+                        <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mr-2"><circle cx="12" cy="12" r="10"/></svg><span data-lang-key="test_instruction_1">Make sure you are in a quiet place.</span></li>
+                        <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mr-2"><rect width="20" height="5" x="2" y="4" rx="1"/><path d="M4 9v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/></svg><span data-lang-key="test_instruction_2">The test has 40 questions (grammar, vocabulary, and reading).</span></li>
+                        <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pecsb-green mr-2"><path d="m5 12 4.3 4.3a1 1 0 0 0 1.4 0L19 7"/></svg><span data-lang-key="test_instruction_3">You will see your result instantly after submitting.</span></li>
+                    </ul>
+                </div>
+
+                <!-- Mock Question Interface (40 questions mocked by 2 for brevity) -->
                 <div id="test-questions" class="space-y-6">
-                    <!-- Sample Question 1 -->
                     <div class="bg-pecsb-light p-5 rounded-lg border-l-4 border-pecsb-green">
-                        <p class="font-semibold text-lg mb-3">Question 1: Choose the correct sentence.</p>
+                        <p class="font-semibold text-lg mb-3" data-lang-key="test_q1_text">Question 1: Choose the correct past simple tense.</p>
                         <div class="space-y-2 text-gray-700">
-                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="a" class="mr-2"> She goed to the market yesterday.</label>
-                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="b" class="mr-2"> She went to the market yesterday.</label>
-                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="c" class="mr-2"> She has went to the market yesterday.</label>
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="a" class="mr-2"><span data-lang-key="test_q1_a">She goed to the market yesterday.</span></label>
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="b" class="mr-2"><span data-lang-key="test_q1_b">She went to the market yesterday.</span></label>
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q1" value="c" class="mr-2"><span data-lang-key="test_q1_c">She has went to the market yesterday.</span></label>
                         </div>
                     </div>
                     
-                    <!-- Sample Question 2 -->
                     <div class="bg-pecsb-light p-5 rounded-lg border-l-4 border-pecsb-green">
-                        <p class="font-semibold text-lg mb-3">Question 2: What is the purpose of the Placement Test?</p>
-                        <input type="text" placeholder="Type your answer here..." class="w-full p-3 border border-gray-300 rounded-md focus:ring-pecsb-green focus:border-pecsb-green">
+                        <p class="font-semibold text-lg mb-3">Question 2: Select the correct synonym for 'Diligent'.</p>
+                        <div class="space-y-2 text-gray-700">
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q2" value="a" class="mr-2"> Lazy</label>
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q2" value="b" class="mr-2"> Hard-working</label>
+                            <label class="block p-2 bg-white rounded-md hover:bg-pecsb-blue/10 cursor-pointer transition"><input type="radio" name="q2" value="c" class="mr-2"> Careless</label>
+                        </div>
                     </div>
+                    <!-- Mocking the other 38 questions... -->
                 </div>
 
                 <!-- Submit Button -->
-                <button onclick="document.getElementById('test-result').classList.remove('hidden')" class="w-full mt-10 py-3 bg-pecsb-green text-white font-bold text-lg rounded-xl shadow-lg hover:bg-pecsb-blue transition duration-300">
+                <button id="test-submit-button" class="w-full mt-10 py-4 bg-pecsb-green text-white font-bold text-xl rounded-xl shadow-lg hover:bg-pecsb-blue transition duration-300" data-lang-key="test_submit">
                     Submit Test & Get Result
                 </button>
+                
+                <!-- After Test Result Display -->
+                <div id="test-result" class="hidden mt-10 p-8 bg-pecsb-blue text-white rounded-xl text-center shadow-2xl">
+                    <h3 class="text-4xl font-extrabold mb-4" data-lang-key="test_congrats">🎉 Congratulations!</h3>
+                    <p class="text-2xl font-medium mb-2" data-lang-key="test_result_b1">Your English level is Intermediate (B1).</p>
+                    <p class="text-lg opacity-90 mb-6" data-lang-key="test_recommend_aep">We recommend you join the Academic English Program (AEP).</p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="#" onclick="renderView('find-teacher')" class="inline-block px-6 py-3 bg-pecsb-green text-white rounded-full font-semibold hover:bg-pecsb-accent transition" data-lang-key="teacher_trial">Book Your Trial Class</a>
+                        <a href="#" onclick="renderView('courses')" class="inline-block px-6 py-3 bg-white text-pecsb-blue rounded-full font-semibold hover:bg-gray-200 transition" data-lang-key="test_recommend_button">Register for Recommended Course</a>
+                    </div>
+                </div>
 
-                <!-- Auto-Result Display -->
-                <div id="test-result" class="hidden mt-10 p-8 bg-pecsb-blue text-white rounded-xl text-center">
-                    <h3 class="text-3xl font-extrabold mb-3">Congratulations!</h3>
-                    <p class="text-xl font-medium" data-lang-key="view_test_result">Your Level: B2 Intermediate</p>
-                    <p class="mt-4 text-sm opacity-90">You are ready for our Academic English Program (AEP).</p>
-                    <a href="#" onclick="renderView('student-dashboard')" class="inline-block mt-4 px-6 py-2 bg-white text-pecsb-blue rounded-full font-semibold hover:bg-gray-200 transition">View Recommended Courses</a>
+                <!-- Level Mapping Comment -->
+                <!-- 
+                Level mapping (Internal Logic):
+                0–15 points → Beginner
+                16–30 points → Intermediate (B1)
+                31–40 points → Advanced (B2/C1)
+                -->
+            </div>
+        </section>
+        
+        <!-- ============================================== -->
+        <!-- 4. FIND A TEACHER PAGE (Extra Page) -->
+        <!-- ============================================== -->
+        <section id="find-teacher-view" class="view-content p-8 bg-white rounded-3xl shadow-xl">
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_teacher_title">Meet Our Certified Teachers</h2>
+
+            <div class="flex flex-col lg:flex-row gap-8">
+                
+                <!-- B. Filters Column (Sidebar) -->
+                <div class="lg:w-1/4 bg-pecsb-light p-6 rounded-xl card-shadow h-fit sticky top-24">
+                    <h3 class="text-xl font-bold text-pecsb-dark mb-4">Filters</h3>
+                    <div class="space-y-4 text-gray-700">
+                        
+                        <!-- Filter by Level -->
+                        <div class="border-b pb-4">
+                            <label class="font-semibold block mb-2" data-lang-key="teacher_filter_level">Level</label>
+                            <select class="w-full p-2 border rounded-md">
+                                <option>All</option>
+                                <option>Beginner</option>
+                                <option>Intermediate</option>
+                                <option>Advanced</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filter by Specialty -->
+                        <div class="border-b pb-4">
+                            <label class="font-semibold block mb-2" data-lang-key="teacher_filter_specialty">Specialty</label>
+                            <select class="w-full p-2 border rounded-md">
+                                <option>All</option>
+                                <option>IELTS/TOEFL</option>
+                                <option>Academic English</option>
+                                <option>Business English</option>
+                                <option>Teenagers (GET)</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter by Available Time -->
+                        <div class="border-b pb-4">
+                            <label class="font-semibold block mb-2" data-lang-key="teacher_filter_time">Available time</label>
+                            <select class="w-full p-2 border rounded-md">
+                                <option>All Day</option>
+                                <option>Morning</option>
+                                <option>Evening</option>
+                                <option>Weekend</option>
+                            </select>
+                        </div>
+
+                        <!-- Filter by Gender -->
+                         <div class="pb-2">
+                            <label class="font-semibold block mb-2" data-lang-key="teacher_filter_gender">Gender</label>
+                            <select class="w-full p-2 border rounded-md">
+                                <option>No preference</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- A. Teacher Listing (Results) -->
+                <div class="lg:w-3/4 space-y-6">
+                    <!-- Teacher Card 1: Ms. Leila -->
+                    <div class="bg-pecsb-light p-5 rounded-xl card-shadow flex flex-col sm:flex-row items-center sm:items-start gap-5 hover:shadow-2xl transition duration-300">
+                        <!-- Profile Photo -->
+                        <img src="https://placehold.co/120x120/1e40af/ffffff?text=Leila" alt="Teacher Leila" class="rounded-full w-24 h-24 object-cover border-4 border-pecsb-blue">
+                        
+                        <!-- Details -->
+                        <div class="flex-grow text-center sm:text-left">
+                            <h4 class="text-2xl font-bold text-pecsb-dark">Ms. Leila M.</h4>
+                            <p class="text-sm text-pecsb-green font-semibold mb-2" data-lang-key="teacher_level">CELTA Certified, Bachelor in English</p>
+                            
+                            <!-- Rating -->
+                            <div class="star-rating mb-3 flex items-center justify-center sm:justify-start">
+                                <span class="font-bold mr-1">4.9/5</span>
+                                <span>⭐⭐⭐⭐⭐</span>
+                                <span class="text-gray-500 ml-2 text-sm">(124 reviews)</span>
+                            </div>
+
+                            <!-- About Me -->
+                            <p class="text-gray-600 mb-3 text-sm italic" data-lang-key="teacher_leila_bio">Hello! My name is Leila, and I have 6 years of teaching experience. I love helping students improve their speaking confidence.</p>
+                            <p class="text-gray-500 text-xs font-medium" data-lang-key="teacher_experience">Experience: TESOL Certified | 1,000+ online classes completed.</p>
+                        </div>
+
+                        <!-- Booking Button & Availability -->
+                        <div class="sm:w-1/4 flex flex-col items-center sm:items-end space-y-3 pt-4 sm:pt-0">
+                            <button class="w-full py-2 px-4 bg-pecsb-green text-white rounded-full font-semibold hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Free Trial</button>
+                            <p class="text-xs text-pecsb-blue font-semibold" data-lang-key="teacher_availability">See Availability Schedule</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Teacher Card 2: Mr. Ali -->
+                    <div class="bg-pecsb-light p-5 rounded-xl card-shadow flex flex-col sm:flex-row items-center sm:items-start gap-5 hover:shadow-2xl transition duration-300">
+                        <img src="https://placehold.co/120x120/059669/ffffff?text=Ali" alt="Teacher Ali" class="rounded-full w-24 h-24 object-cover border-4 border-pecsb-green">
+                        <div class="flex-grow text-center sm:text-left">
+                            <h4 class="text-2xl font-bold text-pecsb-dark">Mr. Ali B.</h4>
+                            <p class="text-sm text-pecsb-blue font-semibold mb-2">IELTS & TOEFL Expert, MA Linguistics</p>
+                            <div class="star-rating mb-3 flex items-center justify-center sm:justify-start">
+                                <span class="font-bold mr-1">5.0/5</span>
+                                <span>⭐⭐⭐⭐⭐</span>
+                                <span class="text-gray-500 ml-2 text-sm">(250 reviews)</span>
+                            </div>
+                            <p class="text-gray-600 mb-3 text-sm italic">Specializes in Advanced Speaking and Exam Preparation. Let's get you a band 7+!</p>
+                            <p class="text-gray-500 text-xs font-medium">Experience: Certified Examiner Trainer | 5 years online teaching.</p>
+                        </div>
+                        <div class="sm:w-1/4 flex flex-col items-center sm:items-end space-y-3 pt-4 sm:pt-0">
+                            <button class="w-full py-2 px-4 bg-pecsb-green text-white rounded-full font-semibold hover:bg-pecsb-blue transition" data-lang-key="teacher_trial">Book Free Trial</button>
+                            <p class="text-xs text-pecsb-blue font-semibold" data-lang-key="teacher_availability">See Availability Schedule</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
+
         <!-- ============================================== -->
-        <!-- 3. STUDENT DASHBOARD VIEW (Extra Page 2) -->
+        <!-- 5. STUDENT DASHBOARD VIEW (Extra Page) -->
         <!-- ============================================== -->
         <section id="student-dashboard-view" class="view-content p-8 bg-white rounded-3xl shadow-xl">
-            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_student_title">Student Dashboard</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-10 text-center" data-lang-key="view_student_title">Student Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                <!-- Card 1: Enrolled Courses -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green">
-                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="view_student_courses">Enrolled Courses</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center space-x-3 text-lg">
-                            <span class="text-pecsb-blue">
-                                <!-- Book Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                            </span>
-                            <span>GEP - Intermediate (75% Complete)</span>
-                        </li>
-                        <li class="flex items-center space-x-3 text-lg">
-                             <span class="text-pecsb-blue">
-                                <!-- Book Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                            </span>
-                            <span>Academic Writing (Pending Start)</span>
-                        </li>
-                    </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">View Course Details</button>
+                <!-- My Courses -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="stud_courses">My Courses</h3>
+                    <p class="font-semibold">GEP - Intermediate (75%)</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5"><div class="bg-pecsb-blue h-2.5 rounded-full" style="width: 75%"></div></div>
+                    <p class="text-sm text-gray-500">Academic Writing (Starting Nov 1st)</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">View Schedule</button>
                 </div>
 
-                <!-- Card 2: Recorded Lessons -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue">
-                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="view_student_lessons">Recorded Lessons</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center space-x-3 text-lg">
-                            <span class="text-pecsb-green">
-                                <!-- Video Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="m22 8-6 4 6 4V8Z"/><path d="M14 15V9a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2Z"/></svg>
-                            </span>
-                            <span>Lesson 8: Reported Speech (Oct 21)</span>
-                        </li>
-                        <li class="flex items-center space-x-3 text-lg">
-                            <span class="text-pecsb-green">
-                                <!-- Video Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="m22 8-6 4 6 4V8Z"/><path d="M14 15V9a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2Z"/></svg>
-                            </span>
-                            <span>Lesson 7: Conditional Types (Oct 18)</span>
-                        </li>
+                <!-- Recorded Classes -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="stud_recorded">Recorded Classes</h3>
+                    <ul class="text-gray-700 space-y-2 text-sm">
+                        <li>Lesson 8: Reported Speech (Oct 21)</li>
+                        <li>Lesson 7: Conditional Types (Oct 18)</li>
                     </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">Watch Recordings</button>
+                    <button class="mt-4 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">Replay All</button>
                 </div>
 
-                <!-- Card 3: Certificates -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green">
-                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="view_student_certificates">Certificates</h3>
-                    <ul class="space-y-3">
-                        <li class="flex items-center space-x-3 text-lg">
-                            <span class="text-pecsb-blue">
-                                <!-- Award Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M12 15a6 6 0 0 0 6-6V2H6v7a6 6 0 0 0 6 6Z"/><path d="M4 19h16"/><path d="M12 15v4"/><path d="M11 22h2"/></svg>
-                            </span>
-                            <span>GEP - Elementary Level (Completed)</span>
-                        </li>
-                        <li class="flex items-center space-x-3 text-lg text-gray-400">
-                             <span class="text-gray-400">
-                                <!-- Award Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline"><path d="M12 15a6 6 0 0 0 6-6V2H6v7a6 6 0 0 0 6 6Z"/><path d="M4 19h16"/><path d="M12 15v4"/><path d="M11 22h2"/></svg>
-                            </span>
-                            <span>IELTS Training (In Progress)</span>
-                        </li>
+                <!-- Homework -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="stud_homework">Homework</h3>
+                    <ul class="text-gray-700 space-y-2 text-sm">
+                        <li class="font-semibold">Essay Draft 1 - AEP (Feedback Received)</li>
+                        <li class="font-semibold text-red-600">Vocabulary Quiz (Due Tomorrow)</li>
                     </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Download Certificates</button>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Upload / Check Feedback</button>
                 </div>
+
+                <!-- Certificates -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="stud_certificates">Certificates</h3>
+                    <ul class="text-gray-700 space-y-2 text-sm">
+                        <li class="font-semibold text-pecsb-green">GEP - Elementary Level</li>
+                        <li class="text-gray-500">IELTS Training (In Progress)</li>
+                    </ul>
+                    <button class="mt-4 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">Download</button>
+                </div>
+
+                <!-- Payments -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="stud_payments">Payments</h3>
+                    <p class="font-semibold text-pecsb-blue text-xl">55 000 DZD</p>
+                    <p class="text-sm text-gray-500">Last payment: AEP Course Fee (Oct 1st)</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">View History</button>
+                </div>
+
+                <!-- Chat Support -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="stud_chat">Chat Support</h3>
+                    <p class="text-sm text-gray-500">Have an issue? Chat with an admin now.</p>
+                    <p class="text-lg font-semibold text-pecsb-green">Online</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">Start Chat</button>
+                </div>
+
             </div>
         </section>
 
         <!-- ============================================== -->
-        <!-- 4. TEACHER DASHBOARD VIEW (Extra Page 3) -->
+        <!-- 6. TEACHER DASHBOARD VIEW (Extra Page) -->
         <!-- ============================================== -->
         <section id="teacher-dashboard-view" class="view-content p-8 bg-white rounded-3xl shadow-xl">
-            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_teacher_title">Teacher Dashboard</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-10 text-center" data-lang-key="view_teacher_title">Teacher Dashboard</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
-                <!-- Card 1: Schedule -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green">
-                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="view_teacher_schedule">My Schedule</h3>
-                    <ul class="space-y-3">
-                        <li class="flex justify-between text-lg border-b pb-1">
-                            <span>10:00 AM - GEP Intermediate</span>
-                            <span class="text-pecsb-blue font-semibold">Today</span>
-                        </li>
-                        <li class="flex justify-between text-lg border-b pb-1">
-                            <span>1:30 PM - AEP Writing Prep</span>
-                            <span class="text-pecsb-blue font-semibold">Today</span>
-                        </li>
-                        <li class="flex justify-between text-lg">
-                            <span>9:00 AM - Trial Class (New Student)</span>
-                            <span class="text-gray-500">Tomorrow</span>
-                        </li>
+                <!-- Schedule -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="teach_schedule">Schedule</h3>
+                    <ul class="text-gray-700 space-y-2 text-sm">
+                        <li class="font-semibold">10:00 AM - GEP Intermediate</li>
+                        <li class="font-semibold">1:30 PM - Trial Class (New Student)</li>
                     </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Manage Availability</button>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Manage Availability</button>
                 </div>
 
-                <!-- Card 2: Salary Tracker -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue">
-                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="view_teacher_salary">Salary Tracker</h3>
-                    <div class="text-4xl font-extrabold text-pecsb-green mb-2">55,200 DZD</div>
-                    <p class="text-gray-600 mb-4">Earnings this month (YTD: 485,000 DZD)</p>
-                    <ul class="space-y-2 text-gray-700">
-                        <li>Classes taught: <span class="font-semibold">46</span></li>
-                        <li>Next Payment Date: <span class="font-semibold text-pecsb-blue">Nov 1st</span></li>
-                    </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">View Payout History</button>
+                <!-- Salary Tracker -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="teach_salary">Salary Tracker</h3>
+                    <p class="text-pecsb-green text-3xl font-extrabold">55,200 DZD</p>
+                    <p class="text-sm text-gray-500">Earnings This Month (Next Payout Nov 1st)</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">View History</button>
                 </div>
 
-                <!-- Card 3: Performance Stats -->
-                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green">
-                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="view_teacher_stats">Performance Stats</h3>
-                    <div class="text-4xl font-extrabold text-pecsb-blue mb-2">4.9/5.0</div>
-                    <p class="text-gray-600 mb-4">Overall Student Rating</p>
-                    <ul class="space-y-2 text-gray-700">
-                        <li>Student Retention: <span class="font-semibold">92%</span></li>
-                        <li>Positive Feedback: <span class="font-semibold">88%</span></li>
+                <!-- Student Feedback -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="teach_feedback">Student Feedback</h3>
+                    <p class="text-pecsb-blue text-3xl font-extrabold">4.9/5.0</p>
+                    <p class="text-sm text-gray-500">Overall Rating (Retention: 92%)</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Read Reviews</button>
+                </div>
+
+                <!-- Training Materials -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-blue space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-blue mb-4" data-lang-key="teach_training">Training Materials</h3>
+                    <ul class="text-gray-700 space-y-2 text-sm">
+                        <li class="font-semibold text-pecsb-green">GET Course Guide (V2.1)</li>
+                        <li class="text-gray-500">New Payment Policy (Oct)</li>
                     </ul>
-                    <button class="mt-6 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Read Student Feedback</button>
+                    <button class="mt-4 w-full py-2 bg-pecsb-green text-white rounded-lg hover:bg-pecsb-blue transition">Access Library</button>
+                </div>
+
+                <!-- Support Ticket -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-3">
+                    <h3 class="text-2xl font-bold text-pecsb-green mb-4" data-lang-key="teach_support">Support Ticket</h3>
+                    <p class="text-sm text-gray-500">Report technical issues or ask admin questions.</p>
+                    <p class="text-lg font-semibold text-red-600">1 Open Ticket</p>
+                    <button class="mt-4 w-full py-2 bg-pecsb-blue text-white rounded-lg hover:bg-pecsb-green transition">Create New Ticket</button>
+                </div>
+                
+            </div>
+        </section>
+        
+        <!-- ============================================== -->
+        <!-- 7. CONTACT & SUPPORT PAGE (Extra Page) -->
+        <!-- ============================================== -->
+        <section id="contact-view" class="view-content p-8 bg-white rounded-3xl shadow-xl">
+            <h2 class="text-4xl font-bold text-pecsb-blue mb-8 text-center" data-lang-key="view_contact_title">Contact & Support</h2>
+            <div class="max-w-3xl mx-auto">
+                <p class="text-lg text-gray-600 mb-6 text-center" data-lang-key="contact_intro">We’re here to help you. If you need any assistance, contact our support team.</p>
+
+                <!-- Contact Form -->
+                <div class="bg-pecsb-light p-6 rounded-xl card-shadow border-t-4 border-pecsb-green space-y-4">
+                    <label class="block">
+                        <span class="text-gray-700 font-semibold" data-lang-key="contact_form_name">Name</span>
+                        <input type="text" placeholder="Your full name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-pecsb-green focus:ring-pecsb-green">
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700 font-semibold" data-lang-key="contact_form_email">Email / Phone</span>
+                        <input type="text" placeholder="your.email@example.com or phone number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-pecsb-green focus:ring-pecsb-green">
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700 font-semibold" data-lang-key="contact_form_msg">Message</span>
+                        <textarea rows="4" placeholder="Describe your request or issue here..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-pecsb-green focus:ring-pecsb-green"></textarea>
+                    </label>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                         <button class="flex-grow py-3 bg-pecsb-blue text-white font-bold rounded-lg hover:bg-pecsb-green transition" data-lang-key="contact_submit">Submit Ticket</button>
+                         <button class="flex-grow py-3 bg-pecsb-green text-white font-bold rounded-lg hover:bg-pecsb-blue transition" data-lang-key="contact_chat">Chat with Admin</button>
+                    </div>
+                </div>
+
+                <!-- Extra Info -->
+                <div class="mt-8 text-center text-gray-700 space-y-2">
+                    <p class="font-semibold text-lg">Quick Contact Details:</p>
+                    <p class="text-pecsb-blue font-medium">📧 info@premiumconsultant.my</p>
+                    <p class="text-sm" data-lang-key="footer_contact_info">📍 Office: PECSB, Kuala Lumpur & Algeria Representative Office</p>
                 </div>
             </div>
         </section>
@@ -605,39 +849,39 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
                 
-                <!-- Logo & Contact -->
+                <!-- Logo & Partnership -->
                 <div>
-                    <h4 class="text-2xl font-black text-pecsb-green mb-3" data-lang-key="logo">PECSB</h4>
-                    <p class="text-sm text-gray-300 mb-2" data-lang-key="footer_contact">Contact Us: info@pecsb.dz</p>
-                    <p class="text-sm text-gray-400" data-lang-key="footer_partnership">In Partnership with the Ministry of Education</p>
+                    <h4 class="text-3xl font-black text-pecsb-green mb-3" data-lang-key="logo">PECSB</h4>
+                    <p class="text-sm text-gray-400 font-semibold" data-lang-key="footer_partnership">In Partnership with the Ministry of Education</p>
                 </div>
 
                 <!-- Quick Links -->
                 <div>
                     <h4 class="font-semibold mb-3">Quick Links</h4>
                     <ul class="space-y-2 text-sm text-gray-300">
-                        <li><a href="#" onclick="renderView('home')" class="hover:text-pecsb-green transition" data-lang-key="nav_home">Home</a></li>
-                        <li><a href="#" onclick="renderView('placement-test')" class="hover:text-pecsb-green transition" data-lang-key="nav_test">Placement Test</a></li>
-                        <li><a href="#" onclick="renderView('student-dashboard')" class="hover:text-pecsb-green transition" data-lang-key="nav_courses">Courses</a></li>
+                        <li><a href="#" class="hover:text-pecsb-green transition" data-lang-key="nav_home" data-view="home">Home</a></li>
+                        <li><a href="#" class="hover:text-pecsb-green transition" data-lang-key="nav_courses" data-view="courses">Courses</a></li>
+                        <li><a href="#" class="hover:text-pecsb-green transition" data-lang-key="nav_find_teacher" data-view="find-teacher">Find a Teacher</a></li>
                     </ul>
                 </div>
 
-                <!-- Support -->
+                <!-- Support & Contact -->
                 <div>
                     <h4 class="font-semibold mb-3" data-lang-key="footer_support">Support</h4>
                     <ul class="space-y-2 text-sm text-gray-300">
                         <li><a href="#" class="hover:text-pecsb-green transition">FAQ</a></li>
-                        <li><a href="#" class="hover:text-pecsb-green transition">Help Center</a></li>
+                        <li><a href="#" class="hover:text-pecsb-green transition" data-lang-key="nav_contact" data-view="contact">Contact</a></li>
                         <li><a href="#" class="hover:text-pecsb-green transition">Teacher Application</a></li>
                     </ul>
                 </div>
 
-                <!-- Legal -->
+                <!-- Legal & Contact Info -->
                 <div>
-                    <h4 class="font-semibold mb-3">Legal</h4>
+                    <h4 class="font-semibold mb-3">Legal & Info</h4>
                     <ul class="space-y-2 text-sm text-gray-300">
                         <li><a href="#" class="hover:text-pecsb-green transition" data-lang-key="footer_privacy">Privacy Policy</a></li>
                         <li><a href="#" class="hover:text-pecsb-green transition">Terms of Service</a></li>
+                        <li class="mt-4 pt-2 border-t border-gray-700" data-lang-key="footer_contact_info">Contact Us: info@pecsb.dz</li>
                     </ul>
                 </div>
 
