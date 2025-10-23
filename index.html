@@ -1,737 +1,803 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PECSB English Algeria — Demo Platform</title>
-<style>
-  :root{
-    --blue:#1f6feb;--green:#10b981;--ink:#0f172a;--muted:#6b7280;
-    --bg:#f8fafc;--card:#ffffff;--line:#e5e7eb;--red:#ef4444;--amber:#f59e0b;
-  }
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
-  header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--line);z-index:5}
-  .wrap{max-width:1100px;margin:0 auto;padding:16px}
-  .brand{display:flex;align-items:center;gap:10px}
-  .brand h1{font-size:18px;margin:0}
-  nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  nav button{border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:10px;cursor:pointer}
-  nav button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
-  main{padding:24px 0}
-  .grid{display:grid;gap:16px}
-  @media(min-width:900px){.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-  .title{margin:0 0 8px 0;font-size:18px}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  input,select,textarea{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px}
-  .row{display:flex;gap:10px;flex-wrap:wrap}
-  .row>div{flex:1 1 180px}
-  .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer}
-  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-  .btn.warn{background:var(--amber);color:#fff;border-color:var(--amber)}
-  .btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
-  .muted{color:var(--muted)} .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);font-size:12px}
-  .kpi{font-size:24px;font-weight:700}
-  .hide{display:none}
-  .table{width:100%;border-collapse:collapse}
-  .table th,.table td{border-bottom:1px solid var(--line);text-align:left;padding:8px}
-  .badge{font-size:11px;border:1px solid var(--line);padding:2px 6px;border-radius:8px}
-  .ok{color:#059669}.bad{color:#dc2626}.pending{color:#d97706}
-  small.code{font-family:ui-monospace,Consolas,Menlo,monospace;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:6px;padding:2px 6px}
-</style>
-</head>
-<body>
-<header>
-  <div class="wrap">
-    <div class="brand">
-      <img alt="PECSB" src="https://dummyimage.com/32x32/1f6feb/ffffff&text=P" width="32" height="32"/>
-      <h1>PECSB English Algeria — Demo</h1>
-    </div>
-    <nav id="topnav"></nav>
-  </div>
-</header>
-
-<main>
-  <div class="wrap">
-    <!-- dynamic pages render here -->
-    <div id="app"></div>
-  </div>
-</main>
-
-<footer class="wrap" style="padding-bottom:40px">
-  <div class="muted">© 2025 PECSB · Demo app (front-end only) · Data stored in your browser (localStorage).</div>
-</footer>
-
-<script>
-/* =========================
-   UTIL & PERSISTENCE LAYER
-   ========================= */
-const $ = (sel, root=document)=>root.querySelector(sel);
-const $$ = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
-const db = {
-  get:(k,def=null)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}},
-  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
-  id:()=>Math.random().toString(36).slice(2,10)
-};
-// Seed data on first run
-(function seed(){
-  if(!db.get('seeded')){
-    const teachers=[{
-      id:db.id(), name:"Leila Ben", city:"Algiers", badges:["TESOL"], years:6,
-      langs:["EN","AR","FR"], rating:4.9, taught:1020, programs:["GEP","AEP","GET"],
-      levels:["A2","B1","B2"], status:"approved", bio:"I help students speak with confidence.",
-      availability:["Mon 18:00","Tue 20:00","Thu 19:00"], priceTrial:0, priceStd:2500
-    },{
-      id:db.id(), name:"Karim M.", city:"Oran", badges:["CELTA"], years:8,
-      langs:["EN","FR"], rating:4.8, taught:1330, programs:["GEP","Training"],
-      levels:["A1","A2","B1"], status:"approved", bio:"Business English & presentations.",
-      availability:["Sat 10:00","Sun 11:00"], priceTrial:0, priceStd:2600
-    }];
-    const students=[];
-    const bookings=[]; // {id, studentId, teacherId, when, program, status, paid, receiptUrl, recordingUrl}
-    const payments=[]; // {id, studentId, amount, method, receiptUrl, status}
-    const users=[ // admin + demo teacher/student accounts
-      {id:db.id(), role:'admin', email:'admin@pecsb.demo', pass:'admin123', name:'PECSB Admin'},
-      {id:db.id(), role:'teacher', email:'leila@pecsb.demo', pass:'teacher123', name:'Leila Ben', linkId:teachers[0].id, approved:true},
-      {id:db.id(), role:'student', email:'amina@pecsb.demo', pass:'student123', name:'Amina'}
-    ];
-    db.set('teachers',teachers);
-    db.set('students',students);
-    db.set('bookings',bookings);
-    db.set('payments',payments);
-    db.set('users',users);
-    db.set('seeded',true);
-  }
-})();
-
-const state={route:'home', me:null, flash:''};
-function setRoute(route){ state.route=route; render(); }
-function setFlash(msg){ state.flash=msg; setTimeout(()=>{state.flash=''; render();},2500); }
-
-/* =========================
-   NAVIGATION
-   ========================= */
-const routes = [
-  {id:'home', label:'Home'},
-  {id:'courses', label:'Courses'},
-  {id:'placement', label:'Placement Test'},
-  {id:'find', label:'Find a Teacher'},
-  {id:'pricing', label:'Pricing & Scholarships'},
-  {id:'how', label:'How It Works'},
-  {id:'student', label:'Student Portal'},
-  {id:'teacher', label:'Teacher Portal'},
-  {id:'apply', label:'Apply as Teacher'},
-  {id:'admin', label:'Admin'},
-  {id:'support', label:'Support & Policies'}
-];
-
-function navView(){
-  const nav = $('#topnav');
-  nav.innerHTML='';
-  routes.forEach(r=>{
-    const b=document.createElement('button');
-    b.textContent=r.label;
-    b.className = state.route===r.id ? 'active' : '';
-    b.onclick=()=>setRoute(r.id);
-    nav.appendChild(b);
-  });
-}
-
-/* =========================
-   VIEWS
-   ========================= */
-function viewHome(){
-  return `
-    <div class="grid grid-2">
-      <div class="card">
-        <h2 class="title">Learn English Anytime, Anywhere in Algeria 🇩🇿</h2>
-        <p class="muted">Trusted lessons with certified Algerian teachers — safe payments, recorded classes, and real results.</p>
-        <div class="row">
-          <button class="btn primary" onclick="setRoute('placement')">Take Free Placement Test</button>
-          <button class="btn" onclick="setRoute('find')">Find Your Teacher</button>
-        </div>
-        <hr style="margin:16px 0;border:none;border-top:1px solid var(--line)"/>
-        <div class="row">
-          <span class="pill">Safe Payments</span>
-          <span class="pill">Certified Teachers</span>
-          <span class="pill">Recorded Classes</span>
-          <span class="pill">Student Portal</span>
-        </div>
-      </div>
-      <div class="card">
-        <h3 class="title">Programs</h3>
-        <ul>
-          <li><b>GEP</b>: daily & workplace English (8 weeks)</li>
-          <li><b>AEP</b>: academic English & presentations (8 weeks)</li>
-          <li><b>Training</b>: specialist English (12 weeks)</li>
-          <li><b>GET</b>: teenagers 13–18 (weekly)</li>
-        </ul>
-        <button class="btn" onclick="setRoute('courses')">Learn More</button>
-      </div>
-    </div>
-  `;
-}
-
-function viewCourses(){
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">GEP — General English</h3>
-      <p>Improve grammar, speaking, listening & writing through practical lessons.</p>
-      <div class="row"><div><b>Duration:</b> 8 weeks</div><div><b>Level:</b> A1–B2</div></div>
-      <div class="row"><div><b>Delivery:</b> Online or Center</div><div><b>Certificate:</b> PECSB</div></div>
-    </div>
-    <div class="card">
-      <h3 class="title">AEP — Academic English</h3>
-      <p>Essay writing, presentation skills, academic vocabulary, research basics.</p>
-      <div class="row"><div><b>Duration:</b> 8 weeks</div><div><b>Level:</b> B1–C1</div></div>
-      <div class="row"><div><b>Delivery:</b> Online or Center</div><div><b>Certificate:</b> PECSB + Partner</div></div>
-    </div>
-    <div class="card">
-      <h3 class="title">Training — Specialized</h3>
-      <p>Business English, Tourism, Oil & Gas, Customer Service, Job Interview English.</p>
-      <div class="row"><div><b>Duration:</b> 12 weeks</div><div><b>Level:</b> all</div></div>
-      <div class="row"><div><b>Delivery:</b> Online or Center</div><div><b>Certificate:</b> PECSB</div></div>
-    </div>
-    <div class="card">
-      <h3 class="title">GET — Teenagers (13–18)</h3>
-      <p>Fun, interactive lessons for school learners (speaking clubs, projects, games).</p>
-      <div class="row"><div><b>Duration:</b> Weekly</div><div><b>Level:</b> Foundation–B1</div></div>
-      <div class="row"><div><b>Delivery:</b> Online or Center</div><div><b>Certificate:</b> PECSB</div></div>
-    </div>
-  </div>
-  `;
-}
-
-function viewPlacement(){
-  return `
-  <div class="card">
-    <h3 class="title">Placement Test — 20 minutes</h3>
-    <p class="muted">Answer 20 quick questions (demo). Your level is shown instantly.</p>
-    <div id="quiz"></div>
-    <div class="row" style="margin-top:12px">
-      <button class="btn primary" onclick="submitPlacement()">Submit Test</button>
-    </div>
-    <div id="quizResult" class="card hide" style="margin-top:12px"></div>
-  </div>`;
-}
-
-function viewFind(){
-  const teachers=db.get('teachers',[]);
-  const cards=teachers.filter(t=>t.status==='approved').map(t=>`
-    <div class="card">
-      <div class="row" style="align-items:center">
-        <div style="flex:0 0 64px">
-          <img alt="${t.name}" src="https://dummyimage.com/64x64/e5e7eb/111&text=${t.name.split(' ')[0][0]}" style="border-radius:12px"/>
-        </div>
-        <div style="flex:1">
-          <h4 class="title" style="margin:0">${t.name} <span class="badge">${t.city}</span></h4>
-          <div class="muted" style="margin:4px 0">${t.badges.join(', ')} · ${t.years} yrs · ★ ${t.rating} · ${t.taught} classes</div>
-          <div><b>Programs:</b> ${t.programs.join(', ')} · <b>Levels:</b> ${t.levels.join(', ')}</div>
-          <div class="muted">Available: ${t.availability.join(', ')}</div>
-        </div>
-        <div>
-          <button class="btn" onclick="bookTrial('${t.id}')">Book Free Trial</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-  return `<div class="grid">${cards||'<div class="muted">No teachers yet.</div>'}</div>`;
-}
-
-function viewPricing(){
-  return `
-  <div class="grid grid-3">
-    <div class="card"><h3 class="title">Online (per course)</h3>
-      <ul>
-        <li>GEP: <b>50,000 DZD</b> (8 weeks)</li>
-        <li>AEP: <b>55,000 DZD</b> (8 weeks)</li>
-        <li>Training: <b>65,000 DZD</b> (12 weeks)</li>
-        <li>GET: <b>8,000 DZD/week</b></li>
-      </ul>
-      <div class="muted">Scholarships: 30–40% off (merit/need).</div>
-    </div>
-    <div class="card"><h3 class="title">Center (per course)</h3>
-      <ul>
-        <li>GEP: <b>60,000 DZD</b> (8 weeks)</li>
-        <li>AEP: <b>70,000 DZD</b> (8 weeks)</li>
-        <li>Training: <b>80,000 DZD</b> (12 weeks)</li>
-      </ul>
-      <div class="muted">Phase 2 requires Ministry approval.</div>
-    </div>
-    <div class="card"><h3 class="title">University (per year)</h3>
-      <ul>
-        <li>Self-pay: <b>180–220k DZD</b></li>
-        <li>Scholarship: <b>90–120k DZD</b></li>
-      </ul>
-    </div>
-  </div>`;
-}
-
-function viewHow(){
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">Student Flow</h3>
-      <ol>
-        <li>Register → Verify email/phone</li>
-        <li>Take placement test → Level shown</li>
-        <li>Book a trial or enroll → Pay/Upload receipt</li>
-        <li>Attend class (recorded) → Homework & feedback</li>
-        <li>Complete → Certificate with QR</li>
-      </ol>
-    </div>
-    <div class="card">
-      <h3 class="title">Teacher Flow</h3>
-      <ol>
-        <li>Apply → Upload docs → Book interview</li>
-        <li>Pass training & sign contract</li>
-        <li>Get approved → Open availability</li>
-        <li>Teach classes (auto-record)</li>
-        <li>Monthly review → Payouts</li>
-      </ol>
-    </div>
-  </div>
-  `;
-}
-
-/* ======= AUTH & PORTALS ======= */
-function viewStudent(){
-  if(state.me?.role==='student') return studentDashboard();
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">Student Login</h3>
-      <label>Email</label><input id="sEmail" type="email">
-      <label>Password</label><input id="sPass" type="password">
-      <div class="row" style="margin-top:8px">
-        <button class="btn primary" onclick="login('student')">Login</button>
-      </div>
-    </div>
-    <div class="card">
-      <h3 class="title">Create Student Account</h3>
-      <div class="row">
-        <div><label>Full Name</label><input id="rName"></div>
-        <div><label>Email</label><input id="rEmail" type="email"></div>
-        <div><label>Phone (WhatsApp)</label><input id="rPhone"></div>
-      </div>
-      <div class="row">
-        <div><label>City</label><input id="rCity"></div>
-        <div><label>Preferred Language</label>
-          <select id="rLang"><option>English</option><option>Arabic</option><option>French</option></select>
-        </div>
-        <div><label>Password</label><input id="rPass" type="password"></div>
-      </div>
-      <button class="btn success" onclick="registerStudent()">Register & Go to Test</button>
-    </div>
-  </div>`;
-}
-
-function studentDashboard(){
-  const bookings=db.get('bookings',[]).filter(b=>b.studentId===state.me.id);
-  const next=bookings.find(b=>b.status==='confirmed')||bookings[0];
-  const recs=bookings.filter(b=>b.recordingUrl);
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">Student Dashboard</h3>
-      <p>Hello, <b>${state.me.name}</b></p>
-      <div class="row">
-        <div><span class="muted">Placement Level:</span> <b>${state.me.level||'-'}</b></div>
-        <div><span class="muted">Recommended:</span> <b>${state.me.recommended||'-'}</b></div>
-      </div>
-      <div style="margin-top:8px">
-        <button class="btn" onclick="setRoute('placement')">Take/Retake Placement Test</button>
-        <button class="btn" onclick="setRoute('find')">Find a Teacher</button>
-      </div>
-    </div>
-    <div class="card">
-      <h4 class="title">Next Class</h4>
-      ${next?`
-        <div><b>${next.program}</b> with ${getTeacher(next.teacherId)?.name||'—'}</div>
-        <div class="muted">${next.when}</div>
-        <div>Status: <span class="badge">${next.status}</span> · Paid: <span class="badge">${next.paid?'Yes':'No'}</span></div>
-        ${!next.paid?`
-          <div style="margin-top:8px">
-            <label>Upload Payment Receipt (placeholder)</label>
-            <input type="text" id="payLink" placeholder="paste receipt URL or code"/>
-            <button class="btn primary" onclick="uploadReceipt('${next.id}')">Submit</button>
-          </div>`:''
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduVerse: Secure English Learning Platform (PECSB)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configure Tailwind for Inter font (default sans-serif) and custom styling */
+        :root {
+            --color-primary: #6366f1; /* Indigo-500 */
+            --color-secondary: #1e293b; /* Slate-800 */
+            --color-background: #0f172a; /* Slate-900 */
+            --color-accent: #fcd34d; /* Amber */
+            --color-text-light: #e2e8f0; /* Slate-200 */
+            --color-text-muted: #94a3b8; /* Slate-400 */
         }
-      `:'No bookings yet.'}
-    </div>
-  </div>
-  <div class="card">
-    <h4 class="title">Recorded Classes</h4>
-    ${recs.length?`<ul>${recs.map(r=>`<li>${r.program} · ${r.when} — <a href="${r.recordingUrl}" target="_blank">Watch</a></li>`).join('')}</ul>`:'None yet.'}
-  </div>
-  <div style="margin-top:12px"><button class="btn" onclick="logout()">Logout</button></div>
-  `;
-}
+        
+        body {
+            background-color: var(--color-background);
+            background-image: radial-gradient(var(--color-secondary) 1px, transparent 0);
+            background-size: 40px 40px;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
 
-function viewTeacher(){
-  if(state.me?.role==='teacher' && state.me.approved) return teacherDashboard();
-  if(state.me?.role==='teacher' && !state.me.approved) return `
-    <div class="card"><h3 class="title">Teacher Onboarding</h3>
-      <p>Status: <span class="badge">Pending Approval</span></p>
-      <p class="muted">Admin will review your documents, interview & training status.</p>
-      <button class="btn" onclick="logout()">Logout</button>
-    </div>`;
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">Teacher Login</h3>
-      <label>Email</label><input id="tEmail" type="email">
-      <label>Password</label><input id="tPass" type="password">
-      <div style="margin-top:8px"><button class="btn primary" onclick="login('teacher')">Login</button></div>
-    </div>
-    <div class="card">
-      <h3 class="title">Apply as Teacher</h3>
-      <div class="row">
-        <div><label>Full Name</label><input id="aName"></div>
-        <div><label>Email</label><input id="aEmail" type="email"></div>
-        <div><label>Phone</label><input id="aPhone"></div>
-      </div>
-      <div class="row">
-        <div><label>City</label><input id="aCity"></div>
-        <div><label>Programs</label>
-          <select id="aPrograms" multiple>
-            <option>GEP</option><option>AEP</option><option>Training</option><option>GET</option>
-          </select>
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px -3px rgba(99, 102, 241, 0.4), 0 4px 6px -2px rgba(99, 102, 241, 0.05);
+        }
+
+        .shadow-custom {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Custom scrollbar for small screens */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: var(--color-secondary); border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: var(--color-background); }
+    </style>
+</head>
+<body class="text-text-light">
+
+    <!-- Header / Platform Bar -->
+    <header class="bg-[var(--color-secondary)]/90 backdrop-blur-sm sticky top-0 z-20 shadow-xl border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- Logo/Branding -->
+            <h1 class="text-3xl font-extrabold text-[var(--color-primary)] tracking-tight cursor-pointer" onclick="navigate('home')">EduVerse</h1>
+
+            <!-- Navigation & User Info (Dynamic content will be injected here) -->
+            <div id="nav-container" class="flex items-center space-x-4">
+                <!-- Navigation links go here -->
+            </div>
         </div>
-        <div><label>Levels</label>
-          <select id="aLevels" multiple>
-            <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option>
-          </select>
+    </header>
+
+    <!-- Main Content Container: Dynamic Application View -->
+    <main id="app" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Page content (Home, Placement Test, Dashboards) is rendered here by JavaScript -->
+        <div class="text-center py-20 text-text-muted">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            Loading application...
         </div>
-      </div>
-      <label>Short Bio</label><input id="aBio" placeholder="I help students speak with confidence."/>
-      <label>Agree to policy</label><input id="aAgree" type="checkbox"/> I agree
-      <div style="margin-top:8px"><button class="btn success" onclick="applyTeacher()">Submit Application</button></div>
-    </div>
-  </div>`;
-}
+    </main>
 
-function teacherDashboard(){
-  const bookings=db.get('bookings',[]).filter(b=>b.teacherId===state.me.linkId);
-  const today=bookings.slice(0,5);
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">Teacher Dashboard</h3>
-      <p>Welcome, <b>${state.me.name}</b></p>
-      <div class="row"><span class="pill">Policy: No private contact</span><span class="pill">All classes recorded</span></div>
-    </div>
-    <div class="card">
-      <h4 class="title">Today / Upcoming</h4>
-      ${today.length?`
-        <table class="table">
-          <tr><th>When</th><th>Student</th><th>Program</th><th>Actions</th></tr>
-          ${today.map(b=>`
-            <tr>
-              <td>${b.when}</td>
-              <td>${getUser(b.studentId)?.name||'—'}</td>
-              <td>${b.program}</td>
-              <td>
-                <button class="btn" onclick="markReport('${b.id}')">Add Report</button>
-                <button class="btn" onclick="addRecording('${b.id}')">Add Recording</button>
-              </td>
-            </tr>`).join('')}
-        </table>
-      `:'No classes yet.'}
-    </div>
-  </div>
-  <div style="margin-top:12px"><button class="btn" onclick="logout()">Logout</button></div>
-  `;
-}
+    <!-- Footer -->
+    <footer class="bg-[var(--color-secondary)]/70 border-t border-slate-700 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-[var(--color-text-muted)] text-sm">
+            <p>&copy; 2025 EduVerse Platform. Managed by PECSB. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script type="module">
+        // --- Firebase/Authentication Boilerplate (Mandatory for real-world apps) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, setLogLevel, doc, collection, onSnapshot, query, where, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-function viewApply(){ setRoute('teacher'); }
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
 
-function viewAdmin(){
-  if(state.me?.role!=='admin') {
-    return `
-    <div class="grid grid-2">
-      <div class="card">
-        <h3 class="title">Admin Login</h3>
-        <label>Email</label><input id="aLEmail" type="email" value="admin@pecsb.demo">
-        <label>Password</label><input id="aLPass" type="password" value="admin123">
-        <button class="btn primary" style="margin-top:8px" onclick="login('admin')">Login</button>
-      </div>
-      <div class="card">
-        <h3 class="title">Demo Accounts</h3>
-        <ul>
-          <li>Admin: <small class="code">admin@pecsb.demo / admin123</small></li>
-          <li>Teacher: <small class="code">leila@pecsb.demo / teacher123</small></li>
-          <li>Student: <small class="code">amina@pecsb.demo / student123</small></li>
-        </ul>
-      </div>
-    </div>`;
-  }
-  const teachers=db.get('teachers',[]);
-  const payments=db.get('payments',[]);
-  const applicants=teachers.filter(t=>t.status!=='approved');
-  const pendPay=payments.filter(p=>p.status==='pending');
-  return `
-  <div class="grid grid-3">
-    <div class="card"><div class="kpi">${teachers.filter(t=>t.status==='approved').length}</div><div class="muted">Approved Teachers</div></div>
-    <div class="card"><div class="kpi">${applicants.length}</div><div class="muted">Applicants to Review</div></div>
-    <div class="card"><div class="kpi">${pendPay.length}</div><div class="muted">Payments to Verify</div></div>
-  </div>
-  <div class="grid grid-2" style="margin-top:12px">
-    <div class="card">
-      <h3 class="title">Teacher Applications</h3>
-      ${applicants.length?`
-        <table class="table">
-          <tr><th>Name</th><th>City</th><th>Programs</th><th>Levels</th><th>Status</th><th></th></tr>
-          ${applicants.map(a=>`
-            <tr>
-              <td>${a.name}</td><td>${a.city||'-'}</td>
-              <td>${(a.programs||[]).join(', ')}</td>
-              <td>${(a.levels||[]).join(', ')}</td>
-              <td><span class="badge">${a.status}</span></td>
-              <td>
-                <button class="btn success" onclick="approveTeacher('${a.id}')">Approve</button>
-                <button class="btn danger" onclick="rejectTeacher('${a.id}')">Reject</button>
-              </td>
-            </tr>`).join('')}
-        </table>
-      `:'No pending applications.'}
-    </div>
-    <div class="card">
-      <h3 class="title">Payment Verifications</h3>
-      ${pendPay.length?`
-        <table class="table">
-          <tr><th>Student</th><th>Amount</th><th>Method</th><th>Receipt</th><th></th></tr>
-          ${pendPay.map(p=>`
-            <tr>
-              <td>${getUser(p.studentId)?.name||'-'}</td>
-              <td>${p.amount}</td>
-              <td>${p.method}</td>
-              <td><a href="${p.receiptUrl||'#'}" target="_blank">${p.receiptUrl?'Open':'—'}</a></td>
-              <td>
-                <button class="btn success" onclick="verifyPayment('${p.id}',true)">Approve</button>
-                <button class="btn danger" onclick="verifyPayment('${p.id}',false)">Reject</button>
-              </td>
-            </tr>`).join('')}
-        </table>
-      `:'No pending payments.'}
-    </div>
-  </div>
-  <div style="margin-top:12px"><button class="btn" onclick="logout()">Logout</button></div>
-  `;
-}
+        let app, db, auth;
+        let userId = null;
+        let isAuthReady = false;
 
-function viewSupport(){
-  return `
-  <div class="grid grid-2">
-    <div class="card">
-      <h3 class="title">FAQ</h3>
-      <p><b>How do I pay?</b> Bank transfer / Western Union / Flywire (if enabled). Upload the receipt in your Student Portal → Next Class.</p>
-      <p><b>Are classes recorded?</b> Yes, for quality and safety. Recordings are kept 30–90 days.</p>
-      <p><b>Can I message my teacher?</b> Use the internal chat only. External contact is not allowed.</p>
-    </div>
-    <div class="card">
-      <h3 class="title">Key Policies</h3>
-      <ul>
-        <li>Reschedule ≥ 12h before class (max 2 per course)</li>
-        <li>No external payments or contacts</li>
-        <li>Refunds: 100% within 7 days if no class taken; partial thereafter</li>
-      </ul>
-    </div>
-  </div>
-  `;
-}
+        if (firebaseConfig) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setLogLevel('Debug');
 
-/* ======= QUIZ DEMO ======= */
-const quizQs = Array.from({length:20}).map((_,i)=>({
-  id:i+1, q:`Question ${i+1}: choose the correct option.`, a:["A","B","C","D"], correct: (i%4)
-}));
-function mountQuiz(){
-  const qz = $('#quiz');
-  qz.innerHTML = quizQs.map(q=>`
-    <div class="card" style="padding:12px;margin-bottom:8px">
-      <div><b>${q.q}</b></div>
-      <div class="row">
-        ${q.a.map((opt,idx)=>`
-          <label style="display:flex;gap:6px;align-items:center">
-            <input type="radio" name="q${q.id}" value="${idx}"/> ${opt}
-          </label>`).join('')}
-      </div>
-    </div>`).join('');
-}
-function submitPlacement(){
-  let score=0;
-  quizQs.forEach(q=>{
-    const sel=$(`input[name=q${q.id}]:checked`);
-    if(sel && +sel.value===q.correct) score++;
-  });
-  const level = score<=8?'A1/A2':score<=15?'B1':'B2/C1';
-  const rec = level.includes('A')?'GEP': level==='B1'?'AEP':'Training or AEP Advanced';
-  const res=$('#quizResult');
-  res.classList.remove('hide');
-  res.innerHTML=`
-    <h4 class="title">Your Result</h4>
-    <p>Score: <b>${score}/20</b> · Level: <b>${level}</b></p>
-    <p>Recommended program: <b>${rec}</b></p>
-    <div class="row">
-      <button class="btn" onclick="setRoute('find')">Book Free Trial</button>
-      <button class="btn" onclick="setRoute('courses')">View Courses</button>
-    </div>
-  `;
-  // store on profile if logged in
-  if(state.me?.role==='student'){
-    const users=db.get('users',[]);
-    const u=users.find(x=>x.id===state.me.id);
-    if(u){u.level=level;u.recommended=rec; db.set('users',users); state.me=u;}
-  }
-}
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                } else {
+                    try {
+                        // Attempt to sign in with custom token if available, otherwise anonymously
+                        if (typeof __initial_auth_token !== 'undefined') {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Firebase Auth error, falling back to mock UUID:", error);
+                        userId = crypto.randomUUID(); 
+                    }
+                }
+                isAuthReady = true;
+                // Once auth is ready, render the application
+                renderApp();
+            });
+        } else {
+            console.warn("Firebase config not found. Running in mock mode.");
+            userId = crypto.randomUUID();
+            isAuthReady = true;
+            setTimeout(renderApp, 100); 
+        }
+        // --- End of Firebase/Authentication Boilerplate ---
 
-/* ======= AUTH ======= */
-function getUser(id){ return db.get('users',[]).find(u=>u.id===id); }
-function login(role){
-  const email = role==='student' ? $('#sEmail')?.value : role==='teacher' ? $('#tEmail')?.value : $('#aLEmail')?.value;
-  const pass  = role==='student' ? $('#sPass')?.value : role==='teacher' ? $('#tPass')?.value : $('#aLPass')?.value;
-  const users=db.get('users',[]);
-  const u=users.find(x=>x.email===email && x.pass===pass && x.role===role);
-  if(!u){ setFlash('Invalid credentials'); render(); return; }
-  state.me=u; setFlash(`Logged in as ${u.name}`); render();
-}
-function logout(){ state.me=null; setFlash('Logged out'); render(); }
+        // --- Mock Data and State Management ---
+        let appState = {
+            currentPage: 'home', // 'home', 'placement', 'findTeacher', 'login', 'studentDashboard', 'teacherDashboard'
+            isLoggedIn: false,
+            currentRole: 'student', // 'student', 'teacher', 'admin'
+            placementScore: null,
+            placementResult: null,
+            loginMessage: ''
+        };
 
-function registerStudent(){
-  const name=$('#rName').value.trim();
-  const email=$('#rEmail').value.trim();
-  const pass=$('#rPass').value.trim();
-  if(!name||!email||!pass){ setFlash('Fill name, email, password'); render(); return; }
-  const users=db.get('users',[]);
-  if(users.some(u=>u.email===email)){ setFlash('Email already used'); render(); return; }
-  const id=db.id();
-  users.push({id, role:'student', name, email, pass});
-  db.set('users',users);
-  state.me=users.at(-1);
-  setFlash('Account created. Take the placement test.');
-  setRoute('placement');
-}
+        const teachersData = [
+            { id: 1, name: 'Dr. Emily Khan', program: 'AEP', level: 'B2-C1', specialty: 'Academic Writing, IELTS', lang: 'AR/EN', rating: 4.8, schedule: 'M/W/F Evenings', bio: 'PhD in Linguistics. Focus on IELTS preparation and academic essay structure.' },
+            { id: 2, name: 'Prof. J. Harper', program: 'GEP', level: 'A1-B1', specialty: 'General English, Conversation', lang: 'AR/FR/EN', rating: 4.5, schedule: 'T/Th Mornings', bio: 'Certified TESOL instructor with 5 years experience teaching GEP to adult learners.' },
+            { id: 3, name: 'Mr. Alex Niemann', program: 'GET', level: 'A2-B2', specialty: 'Teenager Training, Grammar', lang: 'EN', rating: 4.9, schedule: 'Weekend Afternoons', bio: 'Specializes in engaging English lessons for teenagers (GET Program). CELTA certified.' },
+            { id: 4, name: 'Ms. Laila Bensaid', program: 'Training', level: 'B1-C1', specialty: 'Business English, Presentations', lang: 'AR/FR/EN', rating: 4.7, schedule: 'Flexible', bio: 'Corporate trainer specializing in communication skills for Algerian professionals.' },
+        ];
 
-/* ======= TEACHERS ======= */
-function applyTeacher(){
-  const name=$('#aName').value.trim();
-  const email=$('#aEmail').value.trim();
-  const agree=$('#aAgree').checked;
-  if(!name||!email||!agree){ setFlash('Name, email, and agreement are required'); render(); return; }
-  const programs=[...$('#aPrograms').selectedOptions].map(o=>o.value);
-  const levels=[...$('#aLevels').selectedOptions].map(o=>o.value);
-  const t={ id:db.id(), name, city:$('#aCity').value.trim(), programs, levels, status:'pending', badges:[], years:0, langs:["EN"], rating:0, taught:0, bio:$('#aBio').value.trim(), availability:[] };
-  const teachers=db.get('teachers',[]); teachers.push(t); db.set('teachers',teachers);
-  // create user record (not approved)
-  const users=db.get('users',[]);
-  users.push({id:db.id(), role:'teacher', email, pass:'changeme', name, linkId:t.id, approved:false});
-  db.set('users',users);
-  setFlash('Application submitted. Admin will review.');
-  render();
-}
-function approveTeacher(id){
-  const teachers=db.get('teachers',[]);
-  const t=teachers.find(x=>x.id===id); if(!t) return;
-  t.status='approved'; db.set('teachers',teachers);
-  const users=db.get('users',[]);
-  const u=users.find(x=>x.role==='teacher' && x.linkId===id);
-  if(u){u.approved=true; db.set('users',users);}
-  setFlash('Teacher approved'); render();
-}
-function rejectTeacher(id){
-  const teachers=db.get('teachers',[]).filter(t=>t.id!==id);
-  db.set('teachers',teachers);
-  const users=db.get('users',[]).filter(u=>!(u.role==='teacher' && u.linkId===id));
-  db.set('users',users);
-  setFlash('Teacher rejected'); render();
-}
-function getTeacher(id){ return db.get('teachers',[]).find(t=>t.id===id); }
+        const placementQuestions = [
+            { q: "Choose the correct sentence:", a: "She lives in Algiers.", options: ["She live in Algiers.", "She lives in Algiers.", "She is live in Algiers."] },
+            { q: "I haven't been to Paris ___ 2018.", a: "since", options: ["for", "since", "ago"] },
+            { q: "If I were rich, I ___ buy a huge villa.", a: "would", options: ["will", "would", "had"] },
+            { q: "What is the capital of Algeria?", a: "Algiers", options: ["Oran", "Algiers", "Constantine"] },
+            { q: "By next year, I ___ my degree.", a: "will have finished", options: ["will finish", "will have finished", "am finishing"] },
+        ];
+        
+        // --- Core Rendering and Routing Functions ---
+        
+        // Global navigation function
+        window.navigate = (page, role = appState.currentRole) => {
+            appState.currentPage = page;
+            if (page === 'login') {
+                appState.loginMessage = '';
+            } else if (page === 'logout') {
+                appState.isLoggedIn = false;
+                appState.currentPage = 'home';
+            } else if (['studentDashboard', 'teacherDashboard', 'adminDashboard'].includes(page)) {
+                appState.isLoggedIn = true;
+                appState.currentRole = page.replace('Dashboard', '');
+            }
+            renderApp();
+        }
 
-/* ======= BOOKINGS & PAYMENTS ======= */
-function bookTrial(teacherId){
-  if(!state.me || state.me.role!=='student'){ setFlash('Login as student first'); setRoute('student'); return; }
-  const booking={ id:db.id(), studentId:state.me.id, teacherId, when:pickSlot(teacherId), program: state.me.recommended||'GEP', status:'pending', paid:false, receiptUrl:'' };
-  const bookings=db.get('bookings',[]); bookings.push(booking); db.set('bookings',bookings);
-  setFlash('Trial booked (pending). Upload receipt for verification.');
-  setRoute('student');
-}
-function pickSlot(teacherId){
-  const t=getTeacher(teacherId); return (t?.availability?.[0]||'Mon 18:00');
-}
-function uploadReceipt(bookingId){
-  const url=$('#payLink').value.trim();
-  if(!url){ setFlash('Paste a receipt URL/code'); render(); return; }
-  const bookings=db.get('bookings',[]);
-  const b=bookings.find(x=>x.id===bookingId); if(!b){ setFlash('Booking not found'); return; }
-  b.receiptUrl=url; db.set('bookings',bookings);
-  const payments=db.get('payments',[]);
-  payments.push({id:db.id(), studentId:b.studentId, amount: (b.program==='GET'? 'weekly fee':'course fee'), method:'Bank/WU', receiptUrl:url, status:'pending'});
-  db.set('payments',payments);
-  setFlash('Receipt submitted. Finance will verify.');
-  render();
-}
-function verifyPayment(pid, ok){
-  const payments=db.get('payments',[]);
-  const p=payments.find(x=>x.id===pid); if(!p) return;
-  p.status= ok?'approved':'rejected';
-  db.set('payments',payments);
-  if(ok){
-    // mark any pending booking of this student as paid & confirmed (demo)
-    const bookings=db.get('bookings',[]);
-    bookings.filter(b=>b.studentId===p.studentId && !b.paid).forEach(b=>{b.paid=true;b.status='confirmed';});
-    db.set('bookings',bookings);
-  }
-  setFlash(ok?'Payment approved':'Payment rejected');
-  render();
-}
+        const renderApp = () => {
+            if (!isAuthReady) {
+                // Keep showing the loading spinner if authentication hasn't resolved
+                return;
+            }
+            renderHeader();
+            renderMainContent();
+            window.scrollTo(0, 0); // Scroll to top on page change
+        }
 
-/* ======= TEACHER ACTIONS ======= */
-function markReport(bookingId){
-  const bookings=db.get('bookings',[]);
-  const b=bookings.find(x=>x.id===bookingId);
-  if(!b){ setFlash('Booking not found'); return; }
-  b.report = {notes:'Covered speaking practice & past simple.', homework:'Write 150 words about your weekend.'};
-  db.set('bookings',bookings);
-  setFlash('Report saved'); render();
-}
-function addRecording(bookingId){
-  const url=prompt('Paste recording URL (e.g., Zoom cloud link)');
-  if(!url) return;
-  const bookings=db.get('bookings',[]);
-  const b=bookings.find(x=>x.id===bookingId); if(!b) return;
-  b.recordingUrl=url; db.set('bookings',bookings);
-  setFlash('Recording attached'); render();
-}
+        const renderHeader = () => {
+            const navContainer = document.getElementById('nav-container');
+            if (!navContainer) return;
 
-/* ======= ROUTER ======= */
-function view(){
-  switch(state.route){
-    case 'home': return viewHome();
-    case 'courses': return viewCourses();
-    case 'placement': return viewPlacement();
-    case 'find': return viewFind();
-    case 'pricing': return viewPricing();
-    case 'how': return viewHow();
-    case 'student': return viewStudent();
-    case 'teacher': return viewTeacher();
-    case 'apply': return viewApply();
-    case 'admin': return viewAdmin();
-    case 'support': return viewSupport();
-    default: return '<div class="card">Not Found</div>';
-  }
-}
-function render(){
-  navView();
-  $('#app').innerHTML = `
-    ${state.flash?`<div class="card" style="border-left:6px solid var(--blue);margin-bottom:12px">${state.flash}</div>`:''}
-    ${view()}
-  `;
-  if(state.route==='placement') mountQuiz();
-}
-render();
-</script>
+            if (appState.isLoggedIn) {
+                navContainer.innerHTML = renderLoggedInNav();
+            } else {
+                navContainer.innerHTML = renderPublicNav();
+            }
+        }
+
+        const renderPublicNav = () => {
+            const navItems = [
+                { name: 'Home', page: 'home' },
+                { name: 'Courses', page: 'courses' },
+                { name: 'How It Works', page: 'howitworks' },
+                { name: 'Apply as Teacher', page: 'apply' },
+                { name: 'Support', page: 'support' },
+            ];
+
+            return `
+                <!-- Main Nav Links -->
+                <nav class="hidden lg:flex space-x-6 text-sm font-medium">
+                    ${navItems.map(item => `
+                        <button onclick="navigate('${item.page}')" 
+                                class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition duration-200 
+                                ${appState.currentPage === item.page ? 'text-[var(--color-primary)] font-semibold border-b-2 border-primary' : ''}">
+                            ${item.name}
+                        </button>
+                    `).join('')}
+                </nav>
+
+                <!-- Auth Button -->
+                <button onclick="navigate('login')" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-lg shadow-[var(--color-primary)]/40">
+                    Login / Register
+                </button>
+            `;
+        }
+
+        const renderLoggedInNav = () => {
+            const dashboardPage = `${appState.currentRole}Dashboard`;
+            const roleName = appState.currentRole.charAt(0).toUpperCase() + appState.currentRole.slice(1);
+            
+            return `
+                <!-- Role Selector Toggle (For testing roles) -->
+                <div class="flex bg-slate-700/50 p-1 rounded-full text-sm font-medium">
+                    <button onclick="navigate('studentDashboard')" class="py-1 px-3 rounded-full transition-colors duration-300 ${appState.currentRole === 'student' ? 'bg-[var(--color-primary)] text-white shadow-md' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-light)]'}">
+                        Student
+                    </button>
+                    <button onclick="navigate('teacherDashboard')" class="py-1 px-3 rounded-full transition-colors duration-300 ${appState.currentRole === 'teacher' ? 'bg-[var(--color-primary)] text-white shadow-md' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-light)]'}">
+                        Teacher
+                    </button>
+                    <!-- Admin login could be here for quick testing: -->
+                    <!-- <button onclick="navigate('adminDashboard')" class="py-1 px-3 rounded-full transition-colors duration-300 ${appState.currentRole === 'admin' ? 'bg-red-700 text-white shadow-md' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-light)]'}">Admin</button> -->
+                </div>
+
+                <!-- User Avatar & Logout -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm font-medium text-[var(--color-text-muted)] hidden sm:block">${roleName} Portal</span>
+                    <button class="w-10 h-10 bg-[var(--color-primary)]/20 rounded-full flex items-center justify-center text-[var(--color-primary)] font-bold border-2 border-[var(--color-primary)] hover:opacity-80 transition duration-200" title="User ID: ${userId}">
+                        ${roleName.charAt(0)}K
+                    </button>
+                    <button onclick="navigate('logout')" class="text-red-400 hover:text-red-500 text-sm font-medium transition duration-200">
+                        Logout
+                    </button>
+                </div>
+            `;
+        }
+        
+        const renderMainContent = () => {
+            const appDiv = document.getElementById('app');
+            if (!appDiv) return;
+
+            if (appState.isLoggedIn) {
+                switch (appState.currentRole) {
+                    case 'student':
+                        appDiv.innerHTML = renderStudentDashboard();
+                        break;
+                    case 'teacher':
+                        appDiv.innerHTML = renderTeacherDashboard();
+                        break;
+                    case 'admin':
+                        appDiv.innerHTML = renderAdminConsole();
+                        break;
+                    default:
+                        appDiv.innerHTML = renderHome();
+                        break;
+                }
+            } else {
+                switch (appState.currentPage) {
+                    case 'placement':
+                        appDiv.innerHTML = renderPlacementTest();
+                        break;
+                    case 'findTeacher':
+                        appDiv.innerHTML = renderFindTeacher();
+                        break;
+                    case 'login':
+                        appDiv.innerHTML = renderLogin();
+                        break;
+                    case 'courses':
+                        appDiv.innerHTML = renderSimpleContent('Courses & Programs', 'Detailed information about GEP, AEP, GET, and Training programs, including outcomes, levels, and fees.');
+                        break;
+                    case 'apply':
+                        appDiv.innerHTML = renderSimpleContent('Apply as Teacher', 'Online application form with uploads (CV, ID, Certificates). After submission, candidates book an interview.');
+                        break;
+                    default: // 'home' or other public pages
+                        appDiv.innerHTML = renderHome();
+                        break;
+                }
+            }
+        }
+
+        // --- View Implementations ---
+
+        const renderLogin = () => {
+            // Simplified Login/Registration Form
+            return `
+                <section class="max-w-md mx-auto p-8 bg-[var(--color-secondary)] rounded-xl shadow-custom border border-slate-700">
+                    <h2 class="text-3xl font-bold text-[var(--color-primary)] mb-6">Access Your Portal</h2>
+                    <p class="text-[var(--color-text-muted)] mb-6">Enter your credentials to access the secure EduVerse environment.</p>
+                    
+                    ${appState.loginMessage ? `<p class="p-3 mb-4 rounded-lg bg-red-800/50 text-red-300 text-sm border border-red-700">${appState.loginMessage}</p>` : ''}
+                    
+                    <form onsubmit="handleLogin(event)">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-[var(--color-text-light)] mb-1">Email</label>
+                                <input type="email" id="login-email" required class="w-full px-4 py-2 rounded-lg bg-[var(--color-background)] border border-slate-700 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)] text-[var(--color-text-light)]">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-[var(--color-text-light)] mb-1">Password</label>
+                                <input type="password" id="login-password" required class="w-full px-4 py-2 rounded-lg bg-[var(--color-background)] border border-slate-700 focus:border-[var(--color-primary)] focus:ring-[var(--color-primary)] text-[var(--color-text-light)]">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full mt-8 bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-bold py-3 rounded-lg transition duration-200">
+                            Login
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center text-sm">
+                        <button class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]" onclick="alert('Forgot password functionality simulated.')">Forgot Password?</button>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-slate-700 text-center">
+                        <p class="text-sm text-[var(--color-text-muted)] mb-3">Don't have an account?</p>
+                        <button onclick="alert('Registration flow simulated. After registration, proceed to Placement Test.')" class="w-full border border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 font-bold py-3 rounded-lg transition duration-200">
+                            Register Now (Student)
+                        </button>
+                    </div>
+                </section>
+            `;
+        }
+        
+        window.handleLogin = (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Mock login logic
+            if (email.includes('@teacher.com') && password === 'pepsb123') {
+                appState.isLoggedIn = true;
+                appState.currentRole = 'teacher';
+                navigate('teacherDashboard');
+            } else if (email.includes('@student.com') && password === 'pepsb123') {
+                appState.isLoggedIn = true;
+                appState.currentRole = 'student';
+                navigate('studentDashboard');
+            } else {
+                appState.loginMessage = 'Invalid email or password. Use @student.com or @teacher.com (password: pepsb123) to test.';
+                renderApp();
+            }
+        }
+        
+        const renderHome = () => {
+            return `
+                <section class="text-center py-16">
+                    <h2 class="text-5xl md:text-6xl font-extrabold text-[var(--color-text-light)] mb-4 leading-tight">
+                        Safe, Certified English Learning <span class="text-[var(--color-primary)]">in Algeria</span>
+                    </h2>
+                    <p class="text-xl text-[var(--color-text-muted)] max-w-3xl mx-auto mb-10">
+                        Connect with PECSB-approved teachers. Enjoy secure payments, quality-checked recorded classes, and guaranteed progress.
+                    </p>
+
+                    <div class="flex justify-center space-x-4 mb-16">
+                        <button onclick="navigate('placement')" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 text-lg shadow-lg shadow-[var(--color-primary)]/50">
+                            Take Free Placement Test
+                        </button>
+                        <button onclick="navigate('findTeacher')" class="bg-slate-700 hover:bg-slate-600 text-[var(--color-text-light)] font-bold py-3 px-8 rounded-full transition duration-300 text-lg">
+                            Find Your Teacher
+                        </button>
+                    </div>
+                </section>
+                
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check text-emerald-400 mb-4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <h4 class="text-xl font-semibold text-[var(--color-text-light)] mb-2">Safe Payments</h4>
+                        <p class="text-[var(--color-text-muted)] text-sm">All fees are securely handled by PECSB (Bank Transfer, Western Union). Teachers never handle direct payments.</p>
+                    </div>
+                    <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap text-[var(--color-accent)] mb-4"><path d="M22 10v6m0 0-4-4V6"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 10a5 5 0 0 1 5 5V3a5 5 0 0 1-5 5z"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+                        <h4 class="text-xl font-semibold text-[var(--color-text-light)] mb-2">Approved Teachers</h4>
+                        <p class="text-[var(--color-text-muted)] text-sm">Teachers undergo rigorous interviews, mandatory training, and background checks by the PECSB Admin team.</p>
+                    </div>
+                    <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video text-[var(--color-primary)] mb-4"><path d="M16 3v4c0 3 2 5 5 5v3c-3 0-5 2-5 5h-4v-5c0-3-2-5-5-5v-3c3 0 5-2 5-5V3z"/></svg>
+                        <h4 class="text-xl font-semibold text-[var(--color-text-light)] mb-2">Recorded Classes</h4>
+                        <p class="text-[var(--color-text-muted)] text-sm">Every live class is recorded for student review, safety, and quality assurance by the PECSB Quality team.</p>
+                    </div>
+                </section>
+            `;
+        }
+        
+        const renderPlacementTest = () => {
+            if (appState.placementResult) {
+                return `
+                    <section class="max-w-3xl mx-auto p-8 bg-[var(--color-secondary)] rounded-xl shadow-custom border border-l-4 border-emerald-400 text-center">
+                        <h2 class="text-4xl font-bold text-[var(--color-text-light)] mb-4">Test Complete!</h2>
+                        <p class="text-6xl font-extrabold text-emerald-400 my-8">${appState.placementResult.level}</p>
+                        <p class="text-xl text-[var(--color-text-muted)] mb-6">
+                            Your English proficiency level is **${appState.placementResult.level}**. This score indicates you are best suited for the 
+                            <span class="font-semibold text-[var(--color-primary)]">${appState.placementResult.program}</span> program.
+                        </p>
+                        <p class="text-sm text-[var(--color-text-muted)] mb-8">
+                            (Score: ${appState.placementResult.score}/${placementQuestions.length}. Result saved to your profile upon registration.)
+                        </p>
+                        
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="navigate('login')" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200">
+                                Enroll Now (Login/Register)
+                            </button>
+                            <button onclick="navigate('findTeacher')" class="bg-slate-700 hover:bg-slate-600 text-[var(--color-text-light)] font-bold py-3 px-6 rounded-lg transition duration-300">
+                                Find a Teacher
+                            </button>
+                        </div>
+                        <button onclick="appState.placementResult = null; renderApp();" class="mt-4 text-[var(--color-text-muted)] hover:text-[var(--color-primary)] text-sm">
+                            Retake Test (Simulated)
+                        </button>
+                    </section>
+                `;
+            }
+
+            return `
+                <section class="max-w-4xl mx-auto p-8 bg-[var(--color-secondary)] rounded-xl shadow-custom border border-slate-700">
+                    <h2 class="text-3xl font-bold text-[var(--color-primary)] mb-4">Free Placement Test (20 Minutes)</h2>
+                    <p class="text-[var(--color-text-muted)] mb-8">This simple test will assess your level (A1–C1) and recommend the best EduVerse program for you.</p>
+                    
+                    <form onsubmit="handlePlacementSubmit(event)" id="placement-test-form" class="space-y-8">
+                        ${placementQuestions.map((q, index) => `
+                            <div class="p-4 rounded-lg bg-[var(--color-background)] border border-slate-700">
+                                <p class="font-semibold text-[var(--color-text-light)] mb-3">Q${index + 1}: ${q.q}</p>
+                                <div class="space-y-2">
+                                    ${q.options.map(option => `
+                                        <label class="flex items-center space-x-3 cursor-pointer p-2 rounded-lg hover:bg-slate-800 transition">
+                                            <input type="radio" name="q${index}" value="${option}" required class="text-[var(--color-primary)] focus:ring-[var(--color-primary)] bg-slate-700 border-slate-600">
+                                            <span class="text-[var(--color-text-muted)]">${option}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                        
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg shadow-emerald-600/30">
+                            Submit Test and Get Result
+                        </button>
+                    </form>
+                </section>
+            `;
+        }
+
+        window.handlePlacementSubmit = (event) => {
+            event.preventDefault();
+            const form = event.target;
+            let score = 0;
+
+            placementQuestions.forEach((q, index) => {
+                const selectedOption = form.elements[`q${index}`].value;
+                if (selectedOption === q.a) {
+                    score++;
+                }
+            });
+
+            const total = placementQuestions.length;
+            const percentage = score / total;
+
+            let level, program;
+
+            if (percentage >= 0.8) {
+                level = 'C1 (Advanced)';
+                program = 'AEP (Academic) or Training';
+            } else if (percentage >= 0.6) {
+                level = 'B2 (Upper Intermediate)';
+                program = 'AEP or GEP';
+            } else if (percentage >= 0.4) {
+                level = 'B1 (Intermediate)';
+                program = 'GEP or GET';
+            } else if (percentage >= 0.2) {
+                level = 'A2 (Elementary)';
+                program = 'GEP or GET';
+            } else {
+                level = 'A1 (Beginner)';
+                program = 'GEP (General)';
+            }
+
+            appState.placementScore = score;
+            appState.placementResult = { score, level, program };
+            renderApp();
+        }
+        
+        const renderFindTeacher = (filters = {}) => {
+            const { program, level, specialty, lang, availability } = filters;
+            
+            const filteredTeachers = teachersData.filter(teacher => {
+                // Simplified filtering logic (can be expanded)
+                if (program && program !== 'All' && teacher.program !== program) return false;
+                if (lang && lang !== 'All' && !teacher.lang.includes(lang)) return false;
+                return true;
+            });
+
+            return `
+                <section>
+                    <h2 class="text-4xl font-bold text-[var(--color-text-light)] mb-4 text-center">Find Your Approved Teacher</h2>
+                    <p class="text-xl text-[var(--color-text-muted)] text-center mb-10">All teachers are certified, interviewed, and approved by PECSB.</p>
+
+                    <!-- Filter Bar -->
+                    <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg mb-8 border border-slate-700 flex flex-wrap gap-4 items-end">
+                        <div class="flex-grow min-w-[150px]">
+                            <label for="filter-program" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Program</label>
+                            <select id="filter-program" class="w-full bg-[var(--color-background)] border border-slate-700 rounded-lg p-2 text-[var(--color-text-light)]">
+                                <option value="All">All Programs</option>
+                                <option value="GEP">GEP (Adult)</option>
+                                <option value="AEP">AEP (Academic)</option>
+                                <option value="GET">GET (Teenager)</option>
+                                <option value="Training">Training</option>
+                            </select>
+                        </div>
+                        <div class="flex-grow min-w-[150px]">
+                            <label for="filter-lang" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Language Support</label>
+                            <select id="filter-lang" class="w-full bg-[var(--color-background)] border border-slate-700 rounded-lg p-2 text-[var(--color-text-light)]">
+                                <option value="All">Any</option>
+                                <option value="AR">Arabic (AR)</option>
+                                <option value="FR">French (FR)</option>
+                            </select>
+                        </div>
+                        <div class="flex-grow min-w-[150px]">
+                            <label for="filter-specialty" class="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Specialty</label>
+                            <input type="text" id="filter-specialty" placeholder="e.g., IELTS, Business" class="w-full bg-[var(--color-background)] border border-slate-700 rounded-lg p-2 text-[var(--color-text-light)]">
+                        </div>
+                        <button onclick="applyTeacherFilters()" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-bold py-2 px-6 rounded-lg transition duration-200">
+                            Search
+                        </button>
+                    </div>
+
+                    <!-- Teacher List -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${filteredTeachers.length > 0 ? filteredTeachers.map(t => `
+                            <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg border border-slate-700 card-hover-effect">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <div class="w-12 h-12 bg-emerald-400/20 rounded-full flex items-center justify-center text-emerald-400 text-xl font-bold border border-emerald-400">${t.name.charAt(0)}</div>
+                                    <div>
+                                        <h4 class="text-xl font-semibold text-[var(--color-text-light)]">${t.name}</h4>
+                                        <p class="text-sm text-[var(--color-text-muted)]">${t.specialty}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap gap-2 text-xs mb-4">
+                                    <span class="bg-primary/20 text-primary py-1 px-3 rounded-full font-medium">${t.program}</span>
+                                    <span class="bg-accent/20 text-accent py-1 px-3 rounded-full font-medium">${t.level}</span>
+                                    <span class="bg-red-400/20 text-red-400 py-1 px-3 rounded-full font-medium">Rating: ${t.rating} <span class="text-yellow-400">★</span></span>
+                                </div>
+                                <p class="text-[var(--color-text-muted)] text-sm mb-4">${t.bio}</p>
+                                <div class="flex justify-between items-center pt-2 border-t border-slate-800">
+                                    <span class="text-sm font-medium text-emerald-400">Next Slots: ${t.schedule}</span>
+                                    <button onclick="alert('Booking Trial with ${t.name} simulated. Requires login.')" class="bg-[var(--color-primary)] hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200">
+                                        Book Trial
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-center md:col-span-2 text-text-muted">No teachers match your current filters. Try relaxing the criteria.</p>'}
+                    </div>
+                </section>
+            `;
+        }
+
+        window.applyTeacherFilters = () => {
+            const program = document.getElementById('filter-program').value;
+            const lang = document.getElementById('filter-lang').value;
+            // For simplicity, specialty filter is visual only for now
+            renderMainContent({ program, lang }); 
+        }
+
+        const renderStudentDashboard = () => {
+            const currentLevel = appState.placementResult ? appState.placementResult.level : 'B1 (Intermediate)';
+            const userIdDisplay = userId || 'N/A';
+            
+            return `
+                <section class="mb-10 p-6 bg-[var(--color-secondary)] rounded-xl shadow-custom border-l-4 border-[var(--color-primary)]">
+                    <h2 class="text-4xl font-extrabold text-[var(--color-text-light)] mb-2">
+                        Welcome back, Sarah K.
+                    </h2>
+                    <p class="text-[var(--color-text-muted)]">
+                        Student ID: <span class="font-mono text-xs text-primary">${userIdDisplay}</span>
+                    </p>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Student Main Panel -->
+                    <div class="lg:col-span-2 space-y-8">
+                        
+                        <!-- Next Class -->
+                        <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-2xl font-bold text-[var(--color-primary)] mb-4 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                Next Live Class
+                            </h3>
+                            <div class="bg-slate-800 p-4 rounded-lg border-l-4 border-red-400">
+                                <p class="text-lg font-semibold text-[var(--color-text-light)]">Modern History: 20th Century</p>
+                                <p class="text-[var(--color-text-muted)] text-sm mb-3">Teacher: Dr. E. Khan | Level: B2</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-red-400 font-bold">Today at 7:00 PM (Algiers Time)</span>
+                                    <button onclick="alert('Launching Zoom/Meet link...')" class="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200">
+                                        Join Class
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Class Recordings -->
+                        <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-2xl font-bold text-[var(--color-text-light)] mb-4">Recent Recordings</h3>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-slate-800 cursor-pointer">
+                                    <span>Calculus: Integration Techniques (Oct 21)</span>
+                                    <span class="text-[var(--color-primary)] hover:underline">Rewatch <span class="text-[var(--color-text-muted)] text-xs">(Expires Nov 21)</span></span>
+                                </li>
+                                <li class="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-slate-800 cursor-pointer">
+                                    <span>Python: Loops and Conditionals (Oct 18)</span>
+                                    <span class="text-[var(--color-primary)] hover:underline">Rewatch</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Student Sidebar -->
+                    <div class="lg:col-span-1 space-y-8">
+                        <!-- Progress Card -->
+                        <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-xl font-bold text-[var(--color-text-light)] mb-4">My Progress</h3>
+                            <p class="text-4xl font-extrabold text-[var(--color-accent)] mb-2">${currentLevel}</p>
+                            <p class="text-[var(--color-text-muted)] text-sm mb-4">Current Proficiency Level</p>
+                            <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-[var(--color-primary)]" style="width: 65%;"></div>
+                            </div>
+                            <p class="text-xs text-[var(--color-text-muted)] mt-2">65% to next level (C2)</p>
+                            <button onclick="alert('Download certificate simulated.')" class="mt-4 text-[var(--color-primary)] hover:text-indigo-400 text-sm font-medium flex items-center">
+                                Download Certificate <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download ml-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Payments Card -->
+                        <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-xl font-bold text-[var(--color-text-light)] mb-4">Payment Verification</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex justify-between items-center">
+                                    <span class="text-[var(--color-text-muted)]">GEP Course Fee</span>
+                                    <span class="text-emerald-400 font-semibold">Approved</span>
+                                </li>
+                                <li class="flex justify-between items-center">
+                                    <span class="text-[var(--color-text-muted)]">AEP Book Fee</span>
+                                    <span class="text-accent font-semibold">Pending Verification</span>
+                                </li>
+                            </ul>
+                            <button onclick="alert('Receipt upload form simulated. Finance will check bank/WU.')" class="w-full mt-4 bg-primary/10 text-primary hover:bg-primary/20 font-bold py-2 rounded-lg text-sm transition duration-200 border border-primary/50">
+                                Upload Receipt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        const renderTeacherDashboard = () => {
+            const userIdDisplay = userId || 'N/A';
+            
+            return `
+                <section class="mb-10 p-6 bg-[var(--color-secondary)] rounded-xl shadow-custom border-l-4 border-red-400">
+                    <h2 class="text-4xl font-extrabold text-[var(--color-text-light)] mb-2">
+                        Welcome, Professor K.
+                    </h2>
+                    <p class="text-[var(--color-text-muted)]">
+                        Teacher ID: <span class="font-mono text-xs text-red-400">${userIdDisplay}</span> | Status: <span class="text-emerald-400 font-bold">Approved</span>
+                    </p>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Teacher Main Panel -->
+                    <div class="lg:col-span-2 space-y-8">
+                        
+                        <!-- Today's Schedule -->
+                        <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-2xl font-bold text-[var(--color-text-light)] mb-4 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-check-2 mr-2 text-primary"><path d="M21 4H3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="m9 15 2 2 4-4"/></svg>
+                                Today's Classes
+                            </h3>
+                            <ul class="space-y-4">
+                                <!-- Class 1 -->
+                                <li class="bg-slate-800 p-4 rounded-lg border-l-4 border-primary/50">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <p class="text-lg font-semibold text-[var(--color-text-light)]">19:00 - 20:00 | Discrete Mathematics</p>
+                                        <span class="text-xs text-red-400 font-bold">1 hour until start</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-[var(--color-text-muted)]">Student: Ahmed B. | Level: B1</span>
+                                        <button onclick="alert('Launching meeting link for class...')" class="bg-primary hover:bg-indigo-600 text-white font-bold py-1 px-3 rounded-lg text-sm transition duration-200">
+                                            Join
+                                        </button>
+                                    </div>
+                                    <button onclick="alert('Lesson report submission form simulated.')" class="mt-2 text-xs text-emerald-400 hover:underline">Submit Lesson Report</button>
+                                </li>
+                                <!-- Class 2 -->
+                                <li class="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-400">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <p class="text-lg font-semibold text-[var(--color-text-light)]">17:00 - 18:00 | Calculus II</p>
+                                        <span class="text-xs text-emerald-400 font-bold">COMPLETED</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-[var(--color-text-muted)]">Student: Fatima G. | Level: C1</span>
+                                        <button onclick="alert('Attendance marked.')" class="bg-slate-700 text-[var(--color-text-muted)] font-bold py-1 px-3 rounded-lg text-sm cursor-not-allowed">
+                                            Attendance Logged
+                                        </button>
+                                    </div>
+                                    <button onclick="alert('Lesson report submission form simulated.')" class="mt-2 text-xs text-accent hover:underline">Edit Lesson Report</button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Payouts Status -->
+                        <div class="p-6 bg-[var(--color-secondary)] rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-2xl font-bold text-[var(--color-text-light)] mb-4">Payouts Statement</h3>
+                            <div class="bg-slate-800 p-4 rounded-lg flex justify-between items-center border-l-4 border-accent">
+                                <div>
+                                    <p class="text-xl font-semibold text-accent">DZD 45,000</p>
+                                    <p class="text-sm text-[var(--color-text-muted)]">Pending for this period (Oct 16 - Oct 23)</p>
+                                </div>
+                                <button onclick="alert('Payout history view simulated.')" class="bg-primary/10 text-primary hover:bg-primary/20 font-bold py-2 px-4 rounded-lg text-sm transition duration-200 border border-primary/50">
+                                    View History
+                                </button>
+                            </div>
+                            <p class="text-xs text-[var(--color-text-muted)] mt-4">Note: Payouts processed weekly/monthly by PECSB Finance after class reports are submitted.</p>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Sidebar -->
+                    <div class="lg:col-span-1 space-y-8">
+                        
+                        <!-- Schedule Management -->
+                        <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-xl font-bold text-[var(--color-text-light)] mb-4">Schedule Management</h3>
+                            <p class="text-[var(--color-text-muted)] text-sm mb-4">You currently have 18 slots open this week for new bookings.</p>
+                            <button onclick="alert('Schedule management panel simulated (open/close time slots).')" class="w-full bg-primary hover:bg-indigo-600 text-white font-bold py-2 rounded-lg transition duration-200 text-sm">
+                                Edit Availability
+                            </button>
+                        </div>
+
+                        <!-- Resources & Policies -->
+                        <div class="bg-[var(--color-secondary)] p-6 rounded-xl shadow-lg border border-slate-700">
+                            <h3 class="text-xl font-bold text-[var(--color-text-light)] mb-4">Resources & Policies</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="text-[var(--color-primary)] hover:underline cursor-pointer" onclick="alert('Teaching Guide PDF simulated.')">Teaching Guide & Curriculum</li>
+                                <li class="text-red-400 hover:underline cursor-pointer" onclick="alert('Policy: No private contact or direct payments reminder.')">Policy: Code of Conduct Reminder</li>
+                                <li class="text-[var(--color-text-muted)]">My Students (24 active learners)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const renderAdminConsole = () => {
+            return `
+                <section class="mb-10 p-6 bg-[var(--color-secondary)] rounded-xl shadow-custom border-l-4 border-red-700">
+                    <h2 class="text-4xl font-extrabold text-red-400 mb-2">PECSB Admin Console</h2>
+                    <p class="text-[var(--color-text-muted)]">Internal view for managing teachers, payments, and quality assurance.</p>
+                </section>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    ${renderAdminCard('Teacher Approvals', '4 Pending Applications', 'review applications, set levels/programs', 'teachers', 'bg-red-900/50 text-red-300')}
+                    ${renderAdminCard('Payment Verification', '12 Pending Receipts (Bank/WU)', 'verify bank receipts, mark payments approved', 'finance', 'bg-emerald-900/50 text-emerald-300')}
+                    ${renderAdminCard('Quality Assurance', '3 Class Recordings to Review', 'sample-review videos, handle complaints', 'quality', 'bg-primary/50 text-primary')}
+                </div>
+                <p class="text-center text-sm text-text-muted mt-12">User ID: <span class="font-mono text-xs text-red-400">${userId || 'N/A'}</span></p>
+            `;
+        }
+        
+        const renderAdminCard = (title, metric, description, module, colorClasses) => {
+            return `
+                <div class="${colorClasses} p-6 rounded-xl shadow-lg border border-slate-700">
+                    <h4 class="text-xl font-bold mb-2">${title}</h4>
+                    <p class="text-3xl font-extrabold mb-4">${metric}</p>
+                    <p class="text-sm text-[var(--color-text-light)]/70 mb-4">Task: ${description}.</p>
+                    <button onclick="alert('Accessing ${module} panel simulated.')" class="w-full bg-white text-black font-bold py-2 rounded-lg text-sm hover:opacity-90 transition duration-200">
+                        Go to ${module.charAt(0).toUpperCase() + module.slice(1)}
+                    </button>
+                </div>
+            `;
+        }
+        
+        const renderSimpleContent = (title, content) => {
+            return `
+                <section class="max-w-4xl mx-auto p-8 bg-[var(--color-secondary)] rounded-xl shadow-custom border border-slate-700">
+                    <h2 class="text-3xl font-bold text-[var(--color-primary)] mb-4">${title} (Under Construction)</h2>
+                    <p class="text-[var(--color-text-light)] mb-4">${content}</p>
+                    <p class="text-sm text-[var(--color-text-muted)]">This view is currently simulated. Full functionality for ${title} will be implemented soon.</p>
+                </section>
+            `;
+        }
+
+        // Initialize the application after all scripts are loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Only render if auth wasn't already ready (handles the case where __firebase_config is null)
+            if (isAuthReady) {
+                 renderApp();
+            }
+        });
+    </script>
+
 </body>
 </html>
